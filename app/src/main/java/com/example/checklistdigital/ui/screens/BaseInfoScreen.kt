@@ -1,0 +1,172 @@
+package com.example.checklistdigital.ui.screens
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+
+
+@Composable
+fun InfoScreenField(
+    infoInput: String,
+    onInfoInputChange: (String) -> Unit,
+    labelName: @Composable () -> Unit,
+    modifier: Modifier = Modifier
+){
+    Column(modifier = modifier) {
+        OutlinedTextField(
+            value = infoInput,
+            singleLine = true,
+            onValueChange = onInfoInputChange,
+            label = labelName,
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = colorScheme.surface,
+                unfocusedContainerColor = colorScheme.surface,
+                disabledContainerColor = colorScheme.surface,
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp, start = 8.dp, end = 8.dp)
+        )
+    }
+}
+
+@Composable
+fun InfoScreenButtons(
+    onBackClick: () -> Unit = {},
+    onNextClick: () -> Unit = {},
+    backButtonState: Boolean = true,
+    modifier: Modifier = Modifier
+){
+    Row(
+        modifier = modifier.padding(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(64.dp)
+    ) {
+        Button(
+            onClick = onBackClick,
+            enabled = backButtonState,
+            modifier = Modifier
+        ) {
+            Text("Voltar")
+        }
+        Button(
+            onClick = onNextClick,
+            modifier = Modifier
+        ) {
+            Text("Próximo")
+        }
+    }
+}
+
+@Composable
+fun SwitchRow(
+    modifier: Modifier = Modifier,
+    info1: String,
+    infoChecked1: Boolean = false,
+    onInfoChecked1Change: (Boolean) -> Unit = {},
+    info2: String,
+    infoChecked2: Boolean = false,
+    onInfoChecked2Change: (Boolean) -> Unit = {},
+
+){
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ){
+        Card(modifier = Modifier.padding(2.dp).fillMaxWidth(.5f)) {
+            Column(modifier = Modifier.padding(2.dp), verticalArrangement = Arrangement.Center) {
+                Text(
+                    text = info1,
+                    modifier = Modifier
+                        .padding(start = 8.dp, end = 8.dp)
+                )
+                Switch(
+                    checked = infoChecked1,
+                    onCheckedChange = onInfoChecked1Change,
+                    modifier = Modifier.padding(start = 8.dp, end = 8.dp)
+                )
+            }
+        }
+
+        Card(modifier = Modifier.padding(2.dp).fillMaxWidth(1f)) {
+            Column(modifier = Modifier.padding(2.dp), verticalArrangement = Arrangement.Center) {
+                Text(
+                    text = info2,
+                    modifier = Modifier
+                        .padding(start = 8.dp, end = 8.dp)
+                )
+                Switch(
+                    checked = infoChecked2,
+                    onCheckedChange = onInfoChecked2Change,
+                    modifier = Modifier.padding(start = 8.dp, end = 8.dp)
+                )
+            }
+        }
+    }
+}
+
+
+
+
+
+@Composable
+@Preview(
+    showBackground = true,
+    showSystemUi = true
+)
+fun InfoScreenFieldPreview(){
+    InfoScreenField(
+        infoInput = "",
+        onInfoInputChange = {},
+        labelName = { Text("Nome") },
+        modifier = Modifier
+    )
+}
+
+@Composable
+@Preview(
+    showBackground = true,
+    showSystemUi = true
+)
+fun InfoScreenButtonsPreview(){
+    InfoScreenButtons()
+}
+
+@Composable
+@Preview(
+    showBackground = true,
+    showSystemUi = true
+)
+fun SwitchRowPreview(){
+    SwitchRow(
+        info1 = "Item 1",
+        infoChecked1 = false,
+        onInfoChecked1Change = {},
+        info2 = "Item 2",
+        infoChecked2 = false,
+        onInfoChecked2Change = {}
+    )
+}
+
