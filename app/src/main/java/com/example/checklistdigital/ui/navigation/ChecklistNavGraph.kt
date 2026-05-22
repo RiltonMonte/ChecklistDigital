@@ -24,6 +24,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.checklistdigital.R
 import com.example.checklistdigital.ui.screens.AddressInfoScreen
+import com.example.checklistdigital.ui.screens.ChecklistHomeScreen
 import com.example.checklistdigital.ui.screens.ClientInfoScreen
 import com.example.checklistdigital.ui.screens.VehicleStatusScreen1
 import com.example.checklistdigital.ui.screens.VehicleStatusScreen2
@@ -47,13 +48,22 @@ fun ChecklistNavGraph(
 
         NavHost(
             navController = navController,
-            startDestination = ChecklistMainScreen.Client.name,
+            startDestination = ChecklistMainScreen.Home.name,
             modifier = Modifier
         ){
+            composable (route = ChecklistMainScreen.Home.name){
+                ChecklistHomeScreen(
+                    navigateToItemEntry = { navController.navigate(ChecklistMainScreen.Client.name) },
+                    navigateToItemUpdate = { navController.navigate("${ChecklistMainScreen.Client.name}/$it") },
+                    modifier = Modifier
+                        .padding(contentPadding)
+                )
+            }
             composable(route = ChecklistMainScreen.Client.name) {
                 ClientInfoScreen(
                     onNextClick = { navController.navigate(ChecklistMainScreen.Address.name) },
-                    backButtonState = false,
+                    onBackClick = { navController.navigate(ChecklistMainScreen.Home.name) },
+                    backButtonState = true,
                     modifier = Modifier
                         .padding(contentPadding)
                 )
@@ -76,7 +86,7 @@ fun ChecklistNavGraph(
             }
             composable(route = ChecklistMainScreen.Info.name) {
                 VehicleStatusScreen2(
-                    onNextClick = { navController.navigate(ChecklistMainScreen.Client.name) },
+                    onNextClick = { navController.navigate(ChecklistMainScreen.Home.name) },
                     onBackClick = { navController.navigate(ChecklistMainScreen.Vehicle.name) },
                     modifier = Modifier
                         .padding(contentPadding)
@@ -114,6 +124,7 @@ fun ChecklistTopAppBar(modifier: Modifier = Modifier){
 }
 
 enum class ChecklistMainScreen() {
+    Home,
     Client,
     Address,
     Vehicle,

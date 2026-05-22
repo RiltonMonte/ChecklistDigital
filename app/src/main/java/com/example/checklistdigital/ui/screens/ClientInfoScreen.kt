@@ -26,6 +26,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun ClientInfoScreen(
     onNextClick: () -> Unit = {},
+    onBackClick: () -> Unit = {},
     backButtonState: Boolean,
     modifier: Modifier,
     clientViewModel: ClientViewModel = viewModel(factory = ChecklistViewModelProvider.Factory),
@@ -53,7 +54,6 @@ fun ClientInfoScreen(
 
         Spacer(modifier = Modifier.weight(1f))
         InfoScreenButtons(
-            backButtonState = backButtonState,
             onNextClick = {
                 coroutineScope.launch {
                     clientViewModel.saveClient()
@@ -61,6 +61,8 @@ fun ClientInfoScreen(
                     onNextClick()
                 }
             },
+            onBackClick = onBackClick,
+            backButtonState = backButtonState,
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .padding(bottom = 16.dp)

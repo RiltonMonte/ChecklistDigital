@@ -9,11 +9,12 @@ import com.example.checklistdigital.ChecklistApplication
 object ChecklistViewModelProvider {
 
     val Factory = viewModelFactory {
-
+        initializer {
+            ChecklistHomeViewModel(checklistApplication().container.checklistRepository)
+        }
         initializer {
             ClientViewModel(checklistApplication().container.checklistRepository)
         }
-
         initializer {
             VehicleInfoViewModel(checklistApplication().container.checklistRepository)
         }
