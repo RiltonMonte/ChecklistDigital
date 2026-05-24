@@ -22,7 +22,7 @@ class OfflineChecklistRepository(private val checklistDao: ChecklistDao) : Check
     override suspend fun deleteVehicleStatus1(vehicleStatus1: VehicleStatus1) = checklistDao.deleteVehicleStatus1(vehicleStatus1)
     override suspend fun deleteVehicleStatus2(vehicleStatus2: VehicleStatus2) = checklistDao.deleteVehicleStatus2(vehicleStatus2)
 
-//    override fun getChecklist(id: Int): Flow<Client> = checklistDao.getChecklist(id)
+    override fun getChecklist(): Flow<List<Client>> = checklistDao.getChecklist()
     override fun getClient(id: Int): Flow<Client> = checklistDao.getClient(id)
     override fun getVehicleInfo(id: Int): Flow<VehicleInfo> = checklistDao.getVehicleInfo(id)
     override fun getAddress(id: Int): Flow<Address> = checklistDao.getAddress(id)

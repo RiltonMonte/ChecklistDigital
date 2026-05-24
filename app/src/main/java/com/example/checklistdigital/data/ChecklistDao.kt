@@ -58,16 +58,9 @@ interface ChecklistDao {
     suspend fun deleteVehicleStatus2(vehicleStatus2: VehicleStatus2)
 
     //Queries
-    //Chama todas as tabelas
-//    @Query(
-//        "SELECT * FROM client" +
-//            " INNER JOIN vehicleInfo ON vehicleInfo.id = client.id " +
-//            " INNER JOIN address ON address.id  =  client.id " +
-//            "INNER JOIN vehicleStatus1 ON vehicleStatus1.id = client.id " +
-//            "INNER JOIN vehicleStatus2 ON vehicleStatus2.id = client.id " +
-//            "WHERE id = :id"
-//    )
-//    fun getChecklist(id: Int): Flow<Client>
+    //Chama todos os Checklists
+    @Query("SELECT * FROM client")
+    fun getChecklist(): Flow<List<Client>>
 
     @Query("SELECT * FROM client WHERE id = :id")
     fun getClient(id: Int): Flow<Client>

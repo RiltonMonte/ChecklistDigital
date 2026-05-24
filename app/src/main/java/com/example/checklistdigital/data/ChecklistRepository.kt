@@ -25,7 +25,7 @@ interface ChecklistRepository {
     suspend fun deleteVehicleStatus2(vehicleStatus2: VehicleStatus2)
 
     // Queries
-    fun getChecklist(id: Int): Flow<List<Client>>
+    fun getChecklist(): Flow<List<Client>>
     fun getClient(id: Int): Flow<Client>
     fun getVehicleInfo(id: Int): Flow<VehicleInfo>
     fun getAddress(id: Int): Flow<Address>
