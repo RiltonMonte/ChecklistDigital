@@ -28,6 +28,18 @@ class ClientViewModel (private val checklistRepository: ChecklistRepository) : V
             serviceDate.isNotBlank() && clientName.isNotBlank() && insurance.isNotBlank() && accident.isNotBlank() && phone.isNotBlank()
         }
     }
+
+    suspend fun getLastClientId(): Int {
+        return try {
+            val clients = mutableListOf<Client>()
+            checklistRepository.getChecklist().collect { clientList ->
+                clients.addAll(clientList)
+            }
+            clients.maxByOrNull { it.id }?.id ?: -1
+        } catch (e: Exception) {
+            -1
+        }
+    }
 }
 
 data class ClientDetails(

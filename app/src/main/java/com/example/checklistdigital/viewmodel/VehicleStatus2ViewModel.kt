@@ -16,9 +16,11 @@ class VehicleStatus2ViewModel (private val checklistRepository: ChecklistReposit
             VehicleStatus2UiState(vehicleStatus2Details = vehicleStatus2Details, isEntryValid = validateInput(vehicleStatus2Details))
     }
 
-    suspend fun saveVehicleStatus2() {
+    suspend fun saveVehicleStatus2(clientId: Int) {
         if (validateInput()) {
-            checklistRepository.insertVehicleStatus2(vehicleStatus2UiState.vehicleStatus2Details.toVehicleStatus2())
+            checklistRepository.insertVehicleStatus2(
+                vehicleStatus2UiState.vehicleStatus2Details.toVehicleStatus2(clientId)
+            )
         }
     }
 
@@ -43,8 +45,9 @@ data class VehicleStatus2UiState(
     val isEntryValid: Boolean = false
 )
 
-fun VehicleStatus2Details.toVehicleStatus2(): VehicleStatus2 = VehicleStatus2(
+fun VehicleStatus2Details.toVehicleStatus2(clientId: Int): VehicleStatus2 = VehicleStatus2(
     id = id,
+    clientId = clientId,
     pneusDianteiros = pneusDianteiros,
     pneusTraseiros = pneusTraseiros,
     estepe = estepe,

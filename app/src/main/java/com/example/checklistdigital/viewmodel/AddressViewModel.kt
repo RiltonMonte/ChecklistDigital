@@ -16,9 +16,9 @@ class AddressViewModel( private val checklistRepository: ChecklistRepository) : 
             AddressUiState(addressDetails = addressDetails, isEntryValid = validateInput(addressDetails))
     }
 
-    suspend fun saveAddress() {
+    suspend fun saveAddress(clientId: Int) {
         if (validateInput()) {
-            checklistRepository.insertAddress(addressUiState.addressDetails.toAddress())
+            checklistRepository.insertAddress(addressUiState.addressDetails.toAddress(clientId))
         }
     }
 
@@ -49,8 +49,9 @@ data class AddressUiState(
     val isEntryValid: Boolean = false
 )
 
-fun AddressDetails.toAddress(): Address = Address(
+fun AddressDetails.toAddress(clientId: Int): Address = Address(
     id = id,
+    clientId = clientId,
     originStreet = originStreet,
     originNumber = originNumber,
     originDistrict = originDistrict,

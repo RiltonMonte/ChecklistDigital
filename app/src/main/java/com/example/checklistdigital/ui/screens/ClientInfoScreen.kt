@@ -57,8 +57,11 @@ fun ClientInfoScreen(
             onNextClick = {
                 coroutineScope.launch {
                     clientViewModel.saveClient()
-                    vehicleInfoViewModel.saveVehicleInfo()
-                    onNextClick()
+                    val clientId = clientViewModel.getLastClientId()
+                    if (clientId > 0) {
+                        vehicleInfoViewModel.saveVehicleInfo(clientId)
+                        onNextClick()
+                    }
                 }
             },
             onBackClick = onBackClick,

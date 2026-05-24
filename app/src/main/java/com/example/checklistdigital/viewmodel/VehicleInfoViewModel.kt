@@ -17,9 +17,11 @@ class VehicleInfoViewModel(private val checklistRepository: ChecklistRepository)
             vehicleInfoUiState(vehicleInfoDetails = vehicleInfoDetails, isEntryValid = validateInput(vehicleInfoDetails))
     }
 
-    suspend fun saveVehicleInfo() {
+    suspend fun saveVehicleInfo(clientId: Int) {
         if (validateInput()) {
-            checklistRepository.insertVehicleInfo(vehicleInfoUiState.vehicleInfoDetails.toVehicleInfo())
+            checklistRepository.insertVehicleInfo(
+                vehicleInfoUiState.vehicleInfoDetails.toVehicleInfo(clientId)
+            )
         }
     }
 
@@ -45,8 +47,9 @@ data class vehicleInfoUiState(
     val isEntryValid: Boolean = false
 )
 
-fun VehicleInfoDetails.toVehicleInfo(): VehicleInfo = VehicleInfo(
+fun VehicleInfoDetails.toVehicleInfo(clientId: Int): VehicleInfo = VehicleInfo(
     id = id,
+    clientId = clientId,
     vehicle = vehicle,
     plate = plate,
     color = color,

@@ -1,12 +1,24 @@
 package com.example.checklistdigital.data
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "vehicleInfo")
+@Entity(
+    tableName = "vehicleInfo",
+    foreignKeys = [
+        ForeignKey(
+            entity = Client::class,
+            parentColumns = ["id"],
+            childColumns = ["clientId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ]
+)
 data class VehicleInfo (
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
+    val clientId: Int,
     val vehicle: String,
     val plate: String,
     val color: String,

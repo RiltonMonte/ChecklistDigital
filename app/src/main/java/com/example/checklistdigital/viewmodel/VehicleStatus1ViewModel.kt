@@ -16,8 +16,10 @@ class VehicleStatus1ViewModel ( private val checklistRepository: ChecklistReposi
             VehicleStatus1UiState(vehicleStatus1Details = vehicleStatus1Details)
     }
 
-    suspend fun saveVehicleStatus1() {
-            checklistRepository.insertVehicleStatus1(vehicleStatus1UiState.vehicleStatus1Details.toVehicleStatus1())
+    suspend fun saveVehicleStatus1(clientId: Int) {
+            checklistRepository.insertVehicleStatus1(
+                vehicleStatus1UiState.vehicleStatus1Details.toVehicleStatus1(clientId)
+            )
     }
 
 
@@ -50,8 +52,9 @@ data class VehicleStatus1UiState(
     val isEntryValid: Boolean = true
 )
 
-fun VehicleStatus1Details.toVehicleStatus1(): VehicleStatus1 = VehicleStatus1(
+fun VehicleStatus1Details.toVehicleStatus1(clientId: Int): VehicleStatus1 = VehicleStatus1(
     id = id,
+    clientId = clientId,
     documentos = documentos,
     extintor = extintor,
     livreto = livreto,

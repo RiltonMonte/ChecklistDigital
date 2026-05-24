@@ -40,7 +40,8 @@ fun AddressInfoScreen(
         InfoScreenButtons(
             onNextClick = {
                coroutineScope.launch {
-                   addressViewModel.saveAddress()
+                   val clientId = clientViewModel.getLastClientId()
+                   addressViewModel.saveAddress(clientId)
                    onNextClick()
                }
             },
