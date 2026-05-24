@@ -40,12 +40,35 @@ class ChecklistHomeViewModel(
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-                // TODO: implementar função de carregar checklists
-                _uiState.value = _uiState.value.copy(isLoading = false)
+
+                checklistRepository.getChecklist().collect { clients ->
+                    val summaries = clients.mapNotNull { client ->
+                        val vehicleInfo = checklistRepository.getVehicleInfo(client.id).let { flow ->
+                            var result: com.example.checklistdigital.data.VehicleInfo? = null
+                            flow.collect { result = it }
+                            result
+                        }
+
+                        if (vehicleInfo != null) {
+                            ChecklistSummary(
+                                clientId = client.id,
+                                clientName = client.clientName,
+                                serviceDate = client.serviceDate,
+                                vehicle = vehicleInfo.vehicle,
+                                plate = vehicleInfo.plate,
+                                phone = client.phone
+                            )
+                        } else {
+                            null
+                        }
+                    }
+
+                    _uiState.value = _uiState.value.copy(checklists = summaries, isLoading = false)
+                }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = e.message ?: "Unknown error occurred"
+                    error = e.message ?: "Ocorreu um erro ao carregar os checklists"
                 )
             }
         }

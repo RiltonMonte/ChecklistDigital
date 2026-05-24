@@ -78,7 +78,7 @@ fun ClientScreen(
     modifier: Modifier,
 ){
     Card(modifier = Modifier.padding(4.dp)) {
-        //alterar formatação da data
+        //TODO: alterar formatação da data
         InfoScreenField(
             infoInput = uiState.clientDetails.serviceDate,
             onInfoInputChange = { onValueChange(uiState.clientDetails.copy(serviceDate = it)) },
