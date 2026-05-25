@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.checklistdigital.viewmodel.ChecklistViewModelProvider
+import com.example.checklistdigital.viewmodel.ClientViewModel
 import com.example.checklistdigital.viewmodel.VehicleStatus1ViewModel
 import com.example.checklistdigital.viewmodel.VehicleStatus2Details
 import com.example.checklistdigital.viewmodel.VehicleStatus2ViewModel
@@ -37,6 +38,7 @@ fun VehicleStatusScreen1(
     onBackClick: () -> Unit = {},
     modifier: Modifier,
     vehicleStatus1ViewModel: VehicleStatus1ViewModel = viewModel(factory = ChecklistViewModelProvider.Factory),
+    clientViewModel: ClientViewModel = viewModel(factory = ChecklistViewModelProvider.Factory)
 ){
     val vehicleDetails1 = vehicleStatus1ViewModel.vehicleStatus1UiState.vehicleStatus1Details
     val coroutineScope = rememberCoroutineScope()
@@ -118,8 +120,11 @@ fun VehicleStatusScreen1(
         InfoScreenButtons(
             onNextClick = {
                 coroutineScope.launch {
-                    vehicleStatus1ViewModel.saveVehicleStatus1()
-                    onNextClick()
+                    val clientId = clientViewModel.getLastClientId()
+                    if (clientId > 0) {
+                        vehicleStatus1ViewModel.saveVehicleStatus1(clientId)
+                        onNextClick()
+                    }
                 }
             },
             onBackClick = onBackClick,
@@ -135,7 +140,8 @@ fun VehicleStatusScreen2(
     onNextClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
     modifier: Modifier,
-    vehicleStatus2ViewModel: VehicleStatus2ViewModel = viewModel(factory = ChecklistViewModelProvider.Factory)
+    vehicleStatus2ViewModel: VehicleStatus2ViewModel = viewModel(factory = ChecklistViewModelProvider.Factory),
+    clientViewModel: ClientViewModel = viewModel(factory = ChecklistViewModelProvider.Factory)
 ){
     val vehicleDetails2 = vehicleStatus2ViewModel.vehicleStatus2UiState.vehicleStatus2Details
     val coroutineScope = rememberCoroutineScope()
@@ -223,8 +229,11 @@ fun VehicleStatusScreen2(
         InfoScreenButtons(
             onNextClick = {
                 coroutineScope.launch {
-                    vehicleStatus2ViewModel.saveVehicleStatus2()
-                    onNextClick()
+                    val clientId = clientViewModel.getLastClientId()
+                    if (clientId > 0) {
+                        vehicleStatus2ViewModel.saveVehicleStatus2(clientId)
+                        onNextClick()
+                    }
                 }
             },
             onBackClick = onBackClick,
@@ -237,11 +246,11 @@ fun VehicleStatusScreen2(
 
 @Composable
 fun ButtonSelection(
+    modifier: Modifier = Modifier,
     radioOptions: List<String>,
     vehicleDetails2: Int,
     onClickChange: (Int) -> Unit = {},
     onOptionSelected: (String) -> Unit = {},
-    modifier: Modifier = Modifier
 ){
     Row(modifier.selectableGroup()) {
         radioOptions.forEach { text ->

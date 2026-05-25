@@ -16,6 +16,7 @@ import com.example.checklistdigital.viewmodel.AddressDetails
 import com.example.checklistdigital.viewmodel.AddressUiState
 import com.example.checklistdigital.viewmodel.AddressViewModel
 import com.example.checklistdigital.viewmodel.ChecklistViewModelProvider
+import com.example.checklistdigital.viewmodel.ClientViewModel
 import kotlinx.coroutines.launch
 
 
@@ -24,7 +25,8 @@ fun AddressInfoScreen(
     onNextClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
     modifier: Modifier,
-    addressViewModel: AddressViewModel = viewModel(factory = ChecklistViewModelProvider.Factory)
+    addressViewModel: AddressViewModel = viewModel(factory = ChecklistViewModelProvider.Factory),
+    clientViewModel: ClientViewModel = viewModel(factory = ChecklistViewModelProvider.Factory)
 ){
     val coroutineScope = rememberCoroutineScope()
     Column(modifier = modifier) {
@@ -41,8 +43,10 @@ fun AddressInfoScreen(
             onNextClick = {
                coroutineScope.launch {
                    val clientId = clientViewModel.getLastClientId()
-                   addressViewModel.saveAddress(clientId)
-                   onNextClick()
+                   if (clientId > 0) {
+                       addressViewModel.saveAddress(clientId)
+                       onNextClick()
+                   }
                }
             },
             onBackClick = onBackClick,
