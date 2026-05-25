@@ -13,7 +13,7 @@ import androidx.room.RoomDatabase
 //    version = VERSION
 //)
 
-@Database(entities = [Client::class, VehicleInfo::class, Address::class, VehicleStatus1::class, VehicleStatus2::class], version = 1, exportSchema = false)
+@Database(entities = [Client::class, VehicleInfo::class, Address::class, VehicleStatus1::class, VehicleStatus2::class], version = 2, exportSchema = false)
 abstract class ChecklistDatabase : RoomDatabase() {
     abstract fun checklistDao(): ChecklistDao
 
