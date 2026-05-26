@@ -17,9 +17,11 @@ class ClientViewModel (private val checklistRepository: ChecklistRepository) : V
             ClientUiState(clientDetails = clientDetails, isEntryValid = validateInput(clientDetails))
     }
 
-    suspend fun saveClient() {
-        if (validateInput()) {
-            checklistRepository.insertClient(clientUiState.clientDetails.toClient())
+    suspend fun saveClient(): Int {
+        return if (validateInput()) {
+            checklistRepository.insertClient(clientUiState.clientDetails.toClient()).toInt()
+        } else {
+            -1
         }
     }
 

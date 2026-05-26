@@ -70,6 +70,7 @@ fun ChecklistNavGraph(
             }
             composable(route = ChecklistMainScreen.Address.name) {
                 AddressInfoScreen(
+                    clientId = navController.previousBackStackEntry?.savedStateHandle?.get<Int>("clientId") ?: -1,
                     onNextClick = { navController.navigate(ChecklistMainScreen.Vehicle.name) },
                     onBackClick = { navController.navigate(ChecklistMainScreen.Client.name) },
                     modifier = Modifier
@@ -78,6 +79,7 @@ fun ChecklistNavGraph(
             }
             composable(route = ChecklistMainScreen.Vehicle.name) {
                 VehicleStatusScreen1(
+                    clientId = navController.previousBackStackEntry?.savedStateHandle?.get<Int>("clientId") ?: -1,
                     onNextClick = { navController.navigate(ChecklistMainScreen.Info.name) },
                     onBackClick = { navController.navigate(ChecklistMainScreen.Address.name) },
                     modifier = Modifier
@@ -86,6 +88,7 @@ fun ChecklistNavGraph(
             }
             composable(route = ChecklistMainScreen.Info.name) {
                 VehicleStatusScreen2(
+                    clientId = navController.previousBackStackEntry?.savedStateHandle?.get<Int>("clientId") ?: -1,
                     onNextClick = { navController.navigate(ChecklistMainScreen.Home.name) },
                     onBackClick = { navController.navigate(ChecklistMainScreen.Vehicle.name) },
                     modifier = Modifier

@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.Flow
 
 class OfflineChecklistRepository(private val checklistDao: ChecklistDao) : ChecklistRepository {
 
-    override suspend fun insertClient(client: Client) = checklistDao.insertClient(client)
+    override suspend fun insertClient(client: Client): Long = checklistDao.insertClient(client)
     override suspend fun insertVehicleInfo(vehicleInfo: VehicleInfo) = checklistDao.insertVehicleInfo(vehicleInfo)
     override suspend fun insertAddress(address: Address) = checklistDao.insertAddress(address)
     override suspend fun insertVehicleStatus1(vehicleStatus1: VehicleStatus1) = checklistDao.insertVehicleStatus1(vehicleStatus1)

@@ -13,6 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.checklistdigital.viewmodel.ChecklistViewModelProvider
 import com.example.checklistdigital.viewmodel.ClientDetails
 import com.example.checklistdigital.viewmodel.ClientUiState
@@ -25,6 +27,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ClientInfoScreen(
+    navController: NavHostController = rememberNavController(),
     onNextClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
     backButtonState: Boolean,
@@ -57,9 +60,10 @@ fun ClientInfoScreen(
             onNextClick = {
                 coroutineScope.launch {
                     clientViewModel.saveClient()
-                    val clientId = clientViewModel.getLastClientId()
+                    val clientId = clientViewModel.saveClient()
                     if (clientId > 0) {
                         vehicleInfoViewModel.saveVehicleInfo(clientId)
+                        navController.previousBackStackEntry?.savedStateHandle?.set("clientId", clientId)
                         onNextClick()
                     }
                 }

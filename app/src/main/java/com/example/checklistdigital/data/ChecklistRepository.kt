@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface ChecklistRepository {
     // Inserts
-    suspend fun insertClient(client: Client)
+    suspend fun insertClient(client: Client): Long
     suspend fun insertVehicleInfo(vehicleInfo: VehicleInfo)
     suspend fun insertAddress(address: Address)
     suspend fun insertVehicleStatus1(vehicleStatus1: VehicleStatus1)

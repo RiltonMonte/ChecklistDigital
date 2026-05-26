@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface ChecklistDao {
     //Inserts
     @Insert
-    suspend fun insertClient(client: Client)
+    suspend fun insertClient(client: Client): Long
 
     @Insert
     suspend fun insertVehicleInfo(vehicleInfo: VehicleInfo)

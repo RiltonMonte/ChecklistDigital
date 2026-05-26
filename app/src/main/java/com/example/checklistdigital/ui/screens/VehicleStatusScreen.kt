@@ -34,11 +34,11 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun VehicleStatusScreen1(
+    clientId: Int = -1,
     onNextClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
     modifier: Modifier,
     vehicleStatus1ViewModel: VehicleStatus1ViewModel = viewModel(factory = ChecklistViewModelProvider.Factory),
-    clientViewModel: ClientViewModel = viewModel(factory = ChecklistViewModelProvider.Factory)
 ){
     val vehicleDetails1 = vehicleStatus1ViewModel.vehicleStatus1UiState.vehicleStatus1Details
     val coroutineScope = rememberCoroutineScope()
@@ -120,7 +120,6 @@ fun VehicleStatusScreen1(
         InfoScreenButtons(
             onNextClick = {
                 coroutineScope.launch {
-                    val clientId = clientViewModel.getLastClientId()
                     if (clientId > 0) {
                         vehicleStatus1ViewModel.saveVehicleStatus1(clientId)
                         onNextClick()
@@ -137,11 +136,11 @@ fun VehicleStatusScreen1(
 
 @Composable
 fun VehicleStatusScreen2(
+    clientId: Int = -1,
     onNextClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
     modifier: Modifier,
     vehicleStatus2ViewModel: VehicleStatus2ViewModel = viewModel(factory = ChecklistViewModelProvider.Factory),
-    clientViewModel: ClientViewModel = viewModel(factory = ChecklistViewModelProvider.Factory)
 ){
     val vehicleDetails2 = vehicleStatus2ViewModel.vehicleStatus2UiState.vehicleStatus2Details
     val coroutineScope = rememberCoroutineScope()
@@ -229,7 +228,6 @@ fun VehicleStatusScreen2(
         InfoScreenButtons(
             onNextClick = {
                 coroutineScope.launch {
-                    val clientId = clientViewModel.getLastClientId()
                     if (clientId > 0) {
                         vehicleStatus2ViewModel.saveVehicleStatus2(clientId)
                         onNextClick()
