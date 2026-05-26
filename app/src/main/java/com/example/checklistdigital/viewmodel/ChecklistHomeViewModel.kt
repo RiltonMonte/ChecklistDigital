@@ -43,7 +43,7 @@ class ChecklistHomeViewModel(
 
                 checklistRepository.getChecklist().collect { clients ->
                     val summaries = clients.mapNotNull { client ->
-                        val vehicleInfo = checklistRepository.getVehicleInfo(client.id).let { flow ->
+                        val vehicleInfo = checklistRepository.getVehicleInfoByClientId(client.id).let { flow ->
                             var result: com.example.checklistdigital.data.VehicleInfo? = null
                             flow.collect { result = it }
                             result

@@ -77,4 +77,7 @@ interface ChecklistDao {
     @Query("SELECT * FROM vehicleStatus2 WHERE id = :id")
     fun getVehicleStatus2(id: Int): Flow<VehicleStatus2>
 
+    @Query("SELECT * FROM vehicleInfo WHERE clientId = :clientId")
+    fun getVehicleInfoByClientId(clientId: Int): Flow<VehicleInfo>
+
 }

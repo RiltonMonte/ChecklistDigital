@@ -27,6 +27,7 @@ interface ChecklistRepository {
     // Queries
     fun getChecklist(): Flow<List<Client>>
     fun getClient(id: Int): Flow<Client>
+    fun getVehicleInfoByClientId(clientId: Int): Flow<VehicleInfo>
     fun getVehicleInfo(id: Int): Flow<VehicleInfo>
     fun getAddress(id: Int): Flow<Address>
     fun getVehicleStatus1(id: Int): Flow<VehicleStatus1>
