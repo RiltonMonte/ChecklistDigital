@@ -61,6 +61,7 @@ fun ChecklistNavGraph(
             }
             composable(route = ChecklistMainScreen.Client.name) {
                 ClientInfoScreen(
+                    navController = navController,
                     onNextClick = { navController.navigate(ChecklistMainScreen.Address.name) },
                     onBackClick = { navController.navigate(ChecklistMainScreen.Home.name) },
                     backButtonState = true,

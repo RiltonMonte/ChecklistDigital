@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ClientInfoScreen(
-    navController: NavHostController = rememberNavController(),
+    navController: NavHostController,
     onNextClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
     backButtonState: Boolean,
@@ -59,11 +59,11 @@ fun ClientInfoScreen(
         InfoScreenButtons(
             onNextClick = {
                 coroutineScope.launch {
-                    clientViewModel.saveClient()
+                    //clientViewModel.saveClient()
                     val clientId = clientViewModel.saveClient()
                     if (clientId > 0) {
                         vehicleInfoViewModel.saveVehicleInfo(clientId)
-                        navController.previousBackStackEntry?.savedStateHandle?.set("clientId", clientId)
+                        navController.currentBackStackEntry?.savedStateHandle?.set("clientId", clientId)
                         onNextClick()
                     }
                 }
@@ -153,14 +153,14 @@ fun VeihicleScreen(
     }
 }
 
-@Composable
-@Preview(
-    showBackground = true,
-    showSystemUi = true
-)
-fun ClientInfoScreenPreview(){
-    ClientInfoScreen(
-        backButtonState = false,
-        modifier = Modifier
-    )
-}
+//@Composable
+//@Preview(
+//    showBackground = true,
+//    showSystemUi = true
+//)
+//fun ClientInfoScreenPreview(){
+//    ClientInfoScreen(
+//        backButtonState = false,
+//        modifier = Modifier
+//    )
+//}
