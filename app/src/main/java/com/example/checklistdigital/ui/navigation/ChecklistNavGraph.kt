@@ -70,8 +70,10 @@ fun ChecklistNavGraph(
                 )
             }
             composable(route = ChecklistMainScreen.Address.name) {
+                val clientId = navController.getBackStackEntry(ChecklistMainScreen.Client.name)
+                    .savedStateHandle.get<Int>("clientId") ?: -1
                 AddressInfoScreen(
-                    clientId = navController.previousBackStackEntry?.savedStateHandle?.get<Int>("clientId") ?: -1,
+                    clientId = clientId,
                     onNextClick = { navController.navigate(ChecklistMainScreen.Vehicle.name) },
                     onBackClick = { navController.navigate(ChecklistMainScreen.Client.name) },
                     modifier = Modifier
@@ -79,8 +81,10 @@ fun ChecklistNavGraph(
                 )
             }
             composable(route = ChecklistMainScreen.Vehicle.name) {
+                val clientId = navController.getBackStackEntry(ChecklistMainScreen.Client.name)
+                    .savedStateHandle.get<Int>("clientId") ?: -1
                 VehicleStatusScreen1(
-                    clientId = navController.previousBackStackEntry?.savedStateHandle?.get<Int>("clientId") ?: -1,
+                    clientId = clientId,
                     onNextClick = { navController.navigate(ChecklistMainScreen.Info.name) },
                     onBackClick = { navController.navigate(ChecklistMainScreen.Address.name) },
                     modifier = Modifier
@@ -88,8 +92,10 @@ fun ChecklistNavGraph(
                 )
             }
             composable(route = ChecklistMainScreen.Info.name) {
+                val clientId = navController.getBackStackEntry(ChecklistMainScreen.Client.name)
+                    .savedStateHandle.get<Int>("clientId") ?: -1
                 VehicleStatusScreen2(
-                    clientId = navController.previousBackStackEntry?.savedStateHandle?.get<Int>("clientId") ?: -1,
+                    clientId = clientId,
                     onNextClick = { navController.navigate(ChecklistMainScreen.Home.name) },
                     onBackClick = { navController.navigate(ChecklistMainScreen.Vehicle.name) },
                     modifier = Modifier
