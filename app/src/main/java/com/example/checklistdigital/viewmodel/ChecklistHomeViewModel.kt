@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 
 data class ChecklistSummary(
     val clientId: Int,
@@ -42,24 +43,32 @@ class ChecklistHomeViewModel(
                 _uiState.value = _uiState.value.copy(isLoading = true, error = null)
 
                 checklistRepository.getChecklist().collect { clients ->
-                    val summaries = clients.mapNotNull { client ->
-                        val vehicleInfo = checklistRepository.getVehicleInfoByClientId(client.id).let { flow ->
-                            var result: com.example.checklistdigital.data.VehicleInfo? = null
-                            flow.collect { result = it }
-                            result
-                        }
+                    val summaries = mutableListOf<ChecklistSummary>()
 
-                        if (vehicleInfo != null) {
-                            ChecklistSummary(
-                                clientId = client.id,
-                                clientName = client.clientName,
-                                serviceDate = client.serviceDate,
-                                vehicle = vehicleInfo.vehicle,
-                                plate = vehicleInfo.plate,
-                                phone = client.phone
-                            )
-                        } else {
-                            null
+                    for (client in clients) {
+                        try {
+                            var vehicleInfo: com.example.checklistdigital.data.VehicleInfo? = null
+
+                            // Get the first (and should be only) VehicleInfo for this client
+                            checklistRepository.getVehicleInfoByClientId(client.id).first().let {
+                                vehicleInfo = it
+                            }
+
+                            if (vehicleInfo != null) {
+                                summaries.add(
+                                    ChecklistSummary(
+                                        clientId = client.id,
+                                        clientName = client.clientName,
+                                        serviceDate = client.serviceDate,
+                                        vehicle = vehicleInfo!!.vehicle,
+                                        plate = vehicleInfo!!.plate,
+                                        phone = client.phone
+                                    )
+                                )
+                            }
+                        } catch (e: Exception) {
+                            // Skip clients without vehicle info
+                            continue
                         }
                     }
 
