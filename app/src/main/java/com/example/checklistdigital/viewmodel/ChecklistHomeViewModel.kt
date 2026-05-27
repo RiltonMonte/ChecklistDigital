@@ -23,7 +23,8 @@ data class ChecklistSummary(
 data class ChecklistHomeUiState(
     val checklists: List<ChecklistSummary> = emptyList(),
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val selectedClientId: Int? = null  // Track selected checklist
 )
 
 class ChecklistHomeViewModel(
@@ -83,7 +84,18 @@ class ChecklistHomeViewModel(
         }
     }
 
+    fun selectChecklist(clientId: Int) {
+        _uiState.value = _uiState.value.copy(selectedClientId = clientId)
+    }
+
+    fun deselectChecklist() {
+        _uiState.value = _uiState.value.copy(selectedClientId = null)
+    }
+
     fun deleteChecklist(clientId: Int) {
         // TODO: Implementar função deletar checklist
+        // After deletion, deselect and reload
+        deselectChecklist()
+        loadChecklists()
     }
 }

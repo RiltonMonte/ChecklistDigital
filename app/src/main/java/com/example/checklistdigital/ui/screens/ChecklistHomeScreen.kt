@@ -1,5 +1,6 @@
 package com.example.checklistdigital.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,7 +12,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -102,21 +108,92 @@ fun ChecklistHomeScreen(
                     }
                 }
 
-                else -> {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        contentPadding = androidx.compose.foundation.layout.PaddingValues(
-                            bottom = 80.dp
-                        )
+                else ->{
+                    Column(
+                        modifier = Modifier.fillMaxSize()
                     ) {
-                        items(uiState.checklists) { checklistSummary ->
-                            ChecklistCard(
-                                checklistSummary = checklistSummary,
-                                onCardClick = { navigateToItemUpdate(checklistSummary.clientId) }
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f)
+                                .padding(horizontal = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                                top = 8.dp,
+                                bottom = 8.dp
                             )
+                        ) {
+                            items(uiState.checklists) { checklistSummary ->
+                                ChecklistCard(
+                                    checklistSummary = checklistSummary,
+                                    isSelected = uiState.selectedClientId == checklistSummary.clientId,
+                                    onCardClick = {
+                                        if (uiState.selectedClientId == checklistSummary.clientId) {
+                                            checklistHomeViewModel.deselectChecklist()
+                                        } else {
+                                            checklistHomeViewModel.selectChecklist(checklistSummary.clientId)
+                                        }
+                                    }
+                                )
+                            }
+                        }
+
+                        // Edit and Delete Buttons
+                        if (uiState.selectedClientId != null) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                horizontalAlignment = Alignment.End
+                            ) {
+                                ExtendedFloatingActionButton(
+                                    onClick = {
+                                        navigateToItemUpdate(uiState.selectedClientId!!)
+                                        checklistHomeViewModel.deselectChecklist()
+                                    },
+                                    modifier = Modifier,
+                                    icon = { Icon(Icons.Filled.Edit, contentDescription = "Editar") },
+                                    text = { Text("Editar") }
+                                )
+
+                                ExtendedFloatingActionButton(
+                                    onClick = {
+                                        checklistHomeViewModel.deleteChecklist(uiState.selectedClientId!!)
+                                    },
+                                    modifier = Modifier,
+                                    icon = { Icon(Icons.Filled.Delete, contentDescription = "Deletar") },
+                                    text = { Text("Deletar") },
+                                    containerColor = MaterialTheme.colorScheme.error
+                                )
+
+                                ExtendedFloatingActionButton(
+                                    onClick = navigateToItemEntry,
+                                    icon = { Icon(Icons.Filled.Add, contentDescription = "Novo Checklist") },
+                                    text = { Text("Novo Checklist") },
+                                    modifier = Modifier
+                                )
+                            }
+                        } else {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                horizontalAlignment = Alignment.End
+                            ) {
+                                ExtendedFloatingActionButton(
+                                    onClick = navigateToItemEntry,
+                                    icon = {
+                                        Icon(
+                                            Icons.Filled.Add,
+                                            contentDescription = "Novo Checklist"
+                                        )
+                                    },
+                                    text = { Text("Novo Checklist") },
+                                    modifier = Modifier
+                                )
+                            }
                         }
                     }
                 }
@@ -124,14 +201,7 @@ fun ChecklistHomeScreen(
         }
 
         // Floating Action Button
-        ExtendedFloatingActionButton(
-            onClick = navigateToItemEntry,
-            icon = { Icon(Icons.Filled.Add, contentDescription = "Novo Checklist") },
-            text = { Text("Novo Checklist") },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
-        )
+
     }
 }
 
@@ -139,6 +209,7 @@ fun ChecklistHomeScreen(
 @Composable
 fun ChecklistCard(
     checklistSummary: ChecklistSummary,
+    isSelected: Boolean = false,
     onCardClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -146,7 +217,17 @@ fun ChecklistCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
-        onClick = onCardClick
+        onClick = onCardClick,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        border = BorderStroke(
+            width = 1.5.dp,
+            color = if (isSelected)
+                MaterialTheme.colorScheme.outlineVariant
+            else
+                MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+        )
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -245,6 +326,7 @@ fun ChecklistCardPreview() {
             plate = "ABC-1234",
             phone = "(11) 99999-8888"
         ),
+        isSelected = true,
         onCardClick = {}
     )
 }
