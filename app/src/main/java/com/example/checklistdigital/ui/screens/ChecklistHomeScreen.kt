@@ -199,19 +199,17 @@ fun ChecklistHomeScreen(
                 }
             }
         }
-
-        // Floating Action Button
-
     }
 }
 
 
 @Composable
 fun ChecklistCard(
+    modifier: Modifier = Modifier,
     checklistSummary: ChecklistSummary,
     isSelected: Boolean = false,
     onCardClick: () -> Unit,
-    modifier: Modifier = Modifier
+
 ) {
     Card(
         modifier = modifier

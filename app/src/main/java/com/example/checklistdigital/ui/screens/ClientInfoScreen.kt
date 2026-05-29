@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,6 +29,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun ClientInfoScreen(
     navController: NavHostController,
+    clientId: Int = -1,
     onNextClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
     backButtonState: Boolean,
@@ -36,6 +38,17 @@ fun ClientInfoScreen(
     vehicleInfoViewModel: VehicleInfoViewModel = viewModel(factory = ChecklistViewModelProvider.Factory)
 ){
     val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(clientId) {
+        if (clientId > 0) {
+            clientViewModel.loadClientForEdit(clientId)
+            vehicleInfoViewModel.loadVehicleInfoForEdit(clientId)
+        } else {
+            clientViewModel.resetForNewClient()
+            vehicleInfoViewModel.resetForNewVehicle()
+        }
+    }
+
     Column(
         modifier = modifier.fillMaxHeight()
     ) {
@@ -59,7 +72,6 @@ fun ClientInfoScreen(
         InfoScreenButtons(
             onNextClick = {
                 coroutineScope.launch {
-                    //clientViewModel.saveClient()
                     val clientId = clientViewModel.saveClient()
                     if (clientId > 0) {
                         vehicleInfoViewModel.saveVehicleInfo(clientId)

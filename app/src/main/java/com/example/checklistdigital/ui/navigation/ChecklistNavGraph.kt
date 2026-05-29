@@ -59,9 +59,11 @@ fun ChecklistNavGraph(
                         .padding(contentPadding)
                 )
             }
-            composable(route = ChecklistMainScreen.Client.name) {
+            composable(route = "${ChecklistMainScreen.Client.name}/{clientId}") { backStackEntry ->
+                val clientId = backStackEntry.arguments?.getString("clientId")?.toIntOrNull() ?: -1
                 ClientInfoScreen(
                     navController = navController,
+                    clientId = clientId,  // Pass clientId for edit mode
                     onNextClick = { navController.navigate(ChecklistMainScreen.Address.name) },
                     onBackClick = { navController.navigate(ChecklistMainScreen.Home.name) },
                     backButtonState = true,

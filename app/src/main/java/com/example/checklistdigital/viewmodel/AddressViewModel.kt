@@ -4,11 +4,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.checklistdigital.data.Address
 import com.example.checklistdigital.data.ChecklistRepository
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 class AddressViewModel( private val checklistRepository: ChecklistRepository) : ViewModel() {
     var addressUiState by mutableStateOf(AddressUiState())
+        private set
+
+    var isEditMode by mutableStateOf(false)
         private set
 
     fun updateUiState(addressDetails: AddressDetails) {
@@ -18,8 +24,32 @@ class AddressViewModel( private val checklistRepository: ChecklistRepository) : 
 
     suspend fun saveAddress(clientId: Int) {
         if (validateInput()) {
-            checklistRepository.insertAddress(addressUiState.addressDetails.toAddress(clientId))
+            if (isEditMode) {
+                // Update existing address
+                checklistRepository.updateAddress(addressUiState.addressDetails.toAddress(clientId))
+            } else {
+                // Insert new address
+                checklistRepository.insertAddress(addressUiState.addressDetails.toAddress(clientId))
+            }
         }
+    }
+
+    fun loadAddressForEdit(clientId: Int) {
+        viewModelScope.launch {
+            try {
+                val address = checklistRepository.getAddress(clientId).first()
+                isEditMode = true
+                updateUiState(address.toAddressDetails())
+            } catch (e: Exception) {
+                // Handle error - address might not exist
+                isEditMode = false
+            }
+        }
+    }
+
+    fun resetForNewAddress() {
+        isEditMode = false
+        addressUiState = AddressUiState()
     }
 
     private fun validateInput(uiState: AddressDetails = addressUiState.addressDetails): Boolean {

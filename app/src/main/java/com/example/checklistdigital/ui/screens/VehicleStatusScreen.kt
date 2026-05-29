@@ -15,6 +15,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -42,6 +43,14 @@ fun VehicleStatusScreen1(
 ){
     val vehicleDetails1 = vehicleStatus1ViewModel.vehicleStatus1UiState.vehicleStatus1Details
     val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(clientId) {
+        if (clientId > 0) {
+            vehicleStatus1ViewModel.loadVehicleStatus1ForEdit(clientId)
+        } else {
+            vehicleStatus1ViewModel.resetForNewVehicleStatus1()
+        }
+    }
 
     Column(modifier = modifier) {
         SwitchRow(
@@ -144,6 +153,14 @@ fun VehicleStatusScreen2(
 ){
     val vehicleDetails2 = vehicleStatus2ViewModel.vehicleStatus2UiState.vehicleStatus2Details
     val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(clientId) {
+        if (clientId > 0) {
+            vehicleStatus2ViewModel.loadVehicleStatus2ForEdit(clientId)
+        } else {
+            vehicleStatus2ViewModel.resetForNewVehicleStatus2()
+        }
+    }
 
     Column(modifier = modifier) {
         Row(modifier = Modifier.padding(top = 8.dp)){

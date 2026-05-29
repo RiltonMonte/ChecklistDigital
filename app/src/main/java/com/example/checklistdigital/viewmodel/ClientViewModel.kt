@@ -4,12 +4,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.checklistdigital.data.ChecklistRepository
 import com.example.checklistdigital.data.Client
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 class ClientViewModel (private val checklistRepository: ChecklistRepository) : ViewModel() {
 
     var clientUiState by mutableStateOf(ClientUiState())
+        private set
+
+    var isEditMode by mutableStateOf(false)
         private set
 
     fun updateUiState(clientDetails: ClientDetails) {
@@ -19,10 +25,35 @@ class ClientViewModel (private val checklistRepository: ChecklistRepository) : V
 
     suspend fun saveClient(): Int {
         return if (validateInput()) {
-            checklistRepository.insertClient(clientUiState.clientDetails.toClient()).toInt()
+            if (isEditMode) {
+                // Update existing client
+                checklistRepository.updateClient(clientUiState.clientDetails.toClient())
+                clientUiState.clientDetails.id
+            } else {
+                // Insert new client
+                checklistRepository.insertClient(clientUiState.clientDetails.toClient()).toInt()
+            }
         } else {
             -1
         }
+    }
+
+    fun loadClientForEdit(clientId: Int) {
+        viewModelScope.launch {
+            try {
+                val client = checklistRepository.getClient(clientId).first()
+                isEditMode = true
+                updateUiState(client.toClientDetails())
+            } catch (e: Exception) {
+                // Handle error
+                isEditMode = false
+            }
+        }
+    }
+
+    fun resetForNewClient() {
+        isEditMode = false
+        clientUiState = ClientUiState()
     }
 
     private fun validateInput(uiState: ClientDetails = clientUiState.clientDetails): Boolean {

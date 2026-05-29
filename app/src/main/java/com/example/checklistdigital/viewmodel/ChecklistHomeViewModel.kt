@@ -93,9 +93,26 @@ class ChecklistHomeViewModel(
     }
 
     fun deleteChecklist(clientId: Int) {
-        // TODO: Implementar função deletar checklist
-        // After deletion, deselect and reload
-        deselectChecklist()
-        loadChecklists()
+        viewModelScope.launch {
+            try {
+                // Fetch the client to delete
+                val client = checklistRepository.getClient(clientId).first()
+
+                // Delete the client (cascade delete will handle related records)
+                checklistRepository.deleteClient(client)
+
+                // Deselect and reload the list
+                deselectChecklist()
+                loadChecklists()
+            } catch (e: Exception) {
+                // Handle error - show error message
+                _uiState.value = _uiState.value.copy(
+                    error = "Erro ao deletar checklist: ${e.message}",
+                    selectedClientId = null
+                )
+                // Reload to ensure UI is consistent
+                loadChecklists()
+            }
+        }
     }
 }

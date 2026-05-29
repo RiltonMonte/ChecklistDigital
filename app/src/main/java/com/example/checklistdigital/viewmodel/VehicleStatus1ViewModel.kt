@@ -4,11 +4,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.checklistdigital.data.ChecklistRepository
 import com.example.checklistdigital.data.VehicleStatus1
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 class VehicleStatus1ViewModel ( private val checklistRepository: ChecklistRepository) : ViewModel() {
     var vehicleStatus1UiState by mutableStateOf(VehicleStatus1UiState())
+        private set
+
+    var isEditMode by mutableStateOf(false)
         private set
 
     fun updateUiState(vehicleStatus1Details: VehicleStatus1Details) {
@@ -17,11 +23,36 @@ class VehicleStatus1ViewModel ( private val checklistRepository: ChecklistReposi
     }
 
     suspend fun saveVehicleStatus1(clientId: Int) {
+        if (isEditMode) {
+            // Update existing
+            checklistRepository.updateVehicleStatus1(
+                vehicleStatus1UiState.vehicleStatus1Details.toVehicleStatus1(clientId)
+            )
+        } else {
+            // Insert new
             checklistRepository.insertVehicleStatus1(
                 vehicleStatus1UiState.vehicleStatus1Details.toVehicleStatus1(clientId)
             )
+        }
     }
 
+    fun loadVehicleStatus1ForEdit(clientId: Int) {
+        viewModelScope.launch {
+            try {
+                val vehicleStatus1 = checklistRepository.getVehicleStatus1(clientId).first()
+                isEditMode = true
+                updateUiState(vehicleStatus1.toVehicleStatus1Details())
+            } catch (e: Exception) {
+                // Handle error
+                isEditMode = false
+            }
+        }
+    }
+
+    fun resetForNewVehicleStatus1() {
+        isEditMode = false
+        vehicleStatus1UiState = VehicleStatus1UiState()
+    }
 
 }
 

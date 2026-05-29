@@ -4,11 +4,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.checklistdigital.data.ChecklistRepository
 import com.example.checklistdigital.data.VehicleStatus2
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 class VehicleStatus2ViewModel (private val checklistRepository: ChecklistRepository) : ViewModel() {
     var vehicleStatus2UiState by mutableStateOf(VehicleStatus2UiState())
+        private set
+
+    var isEditMode by mutableStateOf(false)
         private set
 
     fun updateUiState(vehicleStatus2Details: VehicleStatus2Details) {
@@ -18,10 +24,36 @@ class VehicleStatus2ViewModel (private val checklistRepository: ChecklistReposit
 
     suspend fun saveVehicleStatus2(clientId: Int) {
         if (validateInput()) {
-            checklistRepository.insertVehicleStatus2(
-                vehicleStatus2UiState.vehicleStatus2Details.toVehicleStatus2(clientId)
-            )
+            if (isEditMode) {
+                // Update existing
+                checklistRepository.updateVehicleStatus2(
+                    vehicleStatus2UiState.vehicleStatus2Details.toVehicleStatus2(clientId)
+                )
+            } else {
+                // Insert new
+                checklistRepository.insertVehicleStatus2(
+                    vehicleStatus2UiState.vehicleStatus2Details.toVehicleStatus2(clientId)
+                )
+            }
         }
+    }
+
+    fun loadVehicleStatus2ForEdit(clientId: Int) {
+        viewModelScope.launch {
+            try {
+                val vehicleStatus2 = checklistRepository.getVehicleStatus2(clientId).first()
+                isEditMode = true
+                updateUiState(vehicleStatus2.toVehicleStatus2Details())
+            } catch (e: Exception) {
+                // Handle error
+                isEditMode = false
+            }
+        }
+    }
+
+    fun resetForNewVehicleStatus2() {
+        isEditMode = false
+        vehicleStatus2UiState = VehicleStatus2UiState()
     }
 
     private fun validateInput(uiState: VehicleStatus2Details = vehicleStatus2UiState.vehicleStatus2Details): Boolean {
