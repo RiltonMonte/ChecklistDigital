@@ -28,12 +28,12 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ClientInfoScreen(
-    navController: NavHostController,
+    navController: NavHostController  = rememberNavController(),
     clientId: Int = -1,
     onNextClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
-    backButtonState: Boolean,
-    modifier: Modifier,
+    backButtonState: Boolean = false,
+    modifier: Modifier = Modifier,
     clientViewModel: ClientViewModel = viewModel(factory = ChecklistViewModelProvider.Factory),
     vehicleInfoViewModel: VehicleInfoViewModel = viewModel(factory = ChecklistViewModelProvider.Factory)
 ){
@@ -165,14 +165,14 @@ fun VeihicleScreen(
     }
 }
 
-//@Composable
-//@Preview(
-//    showBackground = true,
-//    showSystemUi = true
-//)
-//fun ClientInfoScreenPreview(){
-//    ClientInfoScreen(
-//        backButtonState = false,
-//        modifier = Modifier
-//    )
-//}
+@Composable
+@Preview(
+    showBackground = true,
+    showSystemUi = true
+)
+fun ClientInfoScreenPreview(){
+    ClientInfoScreen(
+        backButtonState = false,
+        modifier = Modifier
+    )
+}
