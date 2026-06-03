@@ -35,9 +35,9 @@ fun ChecklistNavGraph(
     navController: NavHostController = rememberNavController()
 ){
     val backStackEntry by navController.currentBackStackEntryAsState()
-    val currentScreen = ChecklistMainScreen.valueOf(
-        backStackEntry?.destination?.route ?: ChecklistMainScreen.Client.name
-        )
+//    val currentScreen = ChecklistMainScreen.valueOf(
+//        backStackEntry?.destination?.route ?: ChecklistMainScreen.Client.name
+//        )
 
 
     Scaffold(
@@ -59,11 +59,24 @@ fun ChecklistNavGraph(
                         .padding(contentPadding)
                 )
             }
+            // Route for creating NEW checklist (no parameter)
+            composable(route = ChecklistMainScreen.Client.name) {
+                ClientInfoScreen(
+                    navController = navController,
+                    clientId = -1,  // New checklist
+                    onNextClick = { navController.navigate(ChecklistMainScreen.Address.name) },
+                    onBackClick = { navController.navigate(ChecklistMainScreen.Home.name) },
+                    backButtonState = true,
+                    modifier = Modifier
+                        .padding(contentPadding)
+                )
+            }
+            // Route for EDITING existing checklist (with parameter)
             composable(route = "${ChecklistMainScreen.Client.name}/{clientId}") { backStackEntry ->
                 val clientId = backStackEntry.arguments?.getString("clientId")?.toIntOrNull() ?: -1
                 ClientInfoScreen(
                     navController = navController,
-                    clientId = clientId,  // Pass clientId for edit mode
+                    clientId = clientId,  // Edit mode
                     onNextClick = { navController.navigate(ChecklistMainScreen.Address.name) },
                     onBackClick = { navController.navigate(ChecklistMainScreen.Home.name) },
                     backButtonState = true,

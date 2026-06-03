@@ -68,14 +68,14 @@ interface ChecklistDao {
     @Query("SELECT * FROM vehicleInfo WHERE id = :id")
     fun getVehicleInfo(id: Int): Flow<VehicleInfo>
 
-    @Query("SELECT * FROM address WHERE id = :id")
-    fun getAddress(id: Int): Flow<Address>
+    @Query("SELECT * FROM address WHERE clientId = :clientId")
+    fun getAddress(clientId: Int): Flow<Address>
 
-    @Query("SELECT * FROM vehicleStatus1 WHERE id = :id")
-    fun getVehicleStatus1(id: Int): Flow<VehicleStatus1>
+    @Query("SELECT * FROM vehicleStatus1 WHERE clientId = :clientId")
+    fun getVehicleStatus1(clientId: Int): Flow<VehicleStatus1>
 
-    @Query("SELECT * FROM vehicleStatus2 WHERE id = :id")
-    fun getVehicleStatus2(id: Int): Flow<VehicleStatus2>
+    @Query("SELECT * FROM vehicleStatus2 WHERE clientId = :clientId")
+    fun getVehicleStatus2(clientId: Int): Flow<VehicleStatus2>
 
     @Query("SELECT * FROM vehicleInfo WHERE clientId = :clientId")
     fun getVehicleInfoByClientId(clientId: Int): Flow<VehicleInfo>

@@ -35,10 +35,10 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun VehicleStatusScreen1(
+    modifier: Modifier = Modifier,
     clientId: Int = -1,
     onNextClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
-    modifier: Modifier,
     vehicleStatus1ViewModel: VehicleStatus1ViewModel = viewModel(factory = ChecklistViewModelProvider.Factory),
 ){
     val vehicleDetails1 = vehicleStatus1ViewModel.vehicleStatus1UiState.vehicleStatus1Details
@@ -145,11 +145,11 @@ fun VehicleStatusScreen1(
 
 @Composable
 fun VehicleStatusScreen2(
+    modifier: Modifier = Modifier,
     clientId: Int = -1,
     onNextClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
-    modifier: Modifier,
-    vehicleStatus2ViewModel: VehicleStatus2ViewModel = viewModel(factory = ChecklistViewModelProvider.Factory),
+    vehicleStatus2ViewModel: VehicleStatus2ViewModel = viewModel(factory = ChecklistViewModelProvider.Factory)
 ){
     val vehicleDetails2 = vehicleStatus2ViewModel.vehicleStatus2UiState.vehicleStatus2Details
     val coroutineScope = rememberCoroutineScope()

@@ -23,11 +23,11 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun AddressInfoScreen(
+    modifier: Modifier = Modifier,
     clientId: Int = -1,
     onNextClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
-    modifier: Modifier,
-    addressViewModel: AddressViewModel = viewModel(factory = ChecklistViewModelProvider.Factory),
+    addressViewModel: AddressViewModel = viewModel(factory = ChecklistViewModelProvider.Factory)
 ){
     val coroutineScope = rememberCoroutineScope()
 
@@ -51,12 +51,12 @@ fun AddressInfoScreen(
         Spacer(modifier = Modifier.weight(1f))
         InfoScreenButtons(
             onNextClick = {
-               coroutineScope.launch {
-                   if (clientId > 0) {
-                       addressViewModel.saveAddress(clientId)
-                       onNextClick()
-                   }
-               }
+                coroutineScope.launch {
+                    if (clientId > 0) {
+                        addressViewModel.saveAddress(clientId)
+                        onNextClick()
+                    }
+                }
             },
             onBackClick = onBackClick,
             modifier = Modifier
@@ -64,7 +64,6 @@ fun AddressInfoScreen(
                 .padding(bottom = 16.dp)
         )
     }
-
 }
 
 @Composable
