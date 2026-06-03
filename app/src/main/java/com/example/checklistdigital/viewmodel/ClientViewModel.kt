@@ -18,6 +18,9 @@ class ClientViewModel (private val checklistRepository: ChecklistRepository) : V
     var isEditMode by mutableStateOf(false)
         private set
 
+    var currentClientId by mutableStateOf(-1)
+        private set
+
     fun updateUiState(clientDetails: ClientDetails) {
         clientUiState =
             ClientUiState(clientDetails = clientDetails, isEntryValid = validateInput(clientDetails))
@@ -31,7 +34,9 @@ class ClientViewModel (private val checklistRepository: ChecklistRepository) : V
                 clientUiState.clientDetails.id
             } else {
                 // Insert new client
-                checklistRepository.insertClient(clientUiState.clientDetails.toClient()).toInt()
+                val newId = checklistRepository.insertClient(clientUiState.clientDetails.toClient()).toInt()
+                currentClientId = newId
+                newId
             }
         } else {
             -1
@@ -39,6 +44,7 @@ class ClientViewModel (private val checklistRepository: ChecklistRepository) : V
     }
 
     fun loadClientForEdit(clientId: Int) {
+        currentClientId = clientId
         viewModelScope.launch {
             try {
                 val client = checklistRepository.getClient(clientId).first()
@@ -53,24 +59,13 @@ class ClientViewModel (private val checklistRepository: ChecklistRepository) : V
 
     fun resetForNewClient() {
         isEditMode = false
+        currentClientId = -1
         clientUiState = ClientUiState()
     }
 
     private fun validateInput(uiState: ClientDetails = clientUiState.clientDetails): Boolean {
         return with(uiState) {
             serviceDate.isNotBlank() && clientName.isNotBlank() && insurance.isNotBlank() && accident.isNotBlank() && phone.isNotBlank()
-        }
-    }
-
-    suspend fun getLastClientId(): Int {
-        return try {
-            val clients = mutableListOf<Client>()
-            checklistRepository.getChecklist().collect { clientList ->
-                clients.addAll(clientList)
-            }
-            clients.maxByOrNull { it.id }?.id ?: -1
-        } catch (e: Exception) {
-            -1
         }
     }
 }
