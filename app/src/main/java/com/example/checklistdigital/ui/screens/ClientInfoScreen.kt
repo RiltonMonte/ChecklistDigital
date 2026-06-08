@@ -30,7 +30,7 @@ import kotlinx.coroutines.launch
 fun ClientInfoScreen(
     navController: NavHostController  = rememberNavController(),
     clientId: Int = -1,
-    onNextClick: () -> Unit = {},
+    onNextClick: (Int) -> Unit = {},
     onBackClick: () -> Unit = {},
     backButtonState: Boolean = false,
     modifier: Modifier = Modifier,
@@ -75,8 +75,7 @@ fun ClientInfoScreen(
                     val clientId = clientViewModel.saveClient()
                     if (clientId > 0) {
                         vehicleInfoViewModel.saveVehicleInfo(clientId)
-                        navController.currentBackStackEntry?.savedStateHandle?.set("clientId", clientId)
-                        onNextClick()
+                        onNextClick(clientId)
                     }
                 }
             },

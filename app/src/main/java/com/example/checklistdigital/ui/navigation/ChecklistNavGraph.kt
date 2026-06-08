@@ -18,10 +18,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.checklistdigital.R
 import com.example.checklistdigital.ui.screens.AddressInfoScreen
 import com.example.checklistdigital.ui.screens.ChecklistHomeScreen
@@ -30,15 +32,15 @@ import com.example.checklistdigital.ui.screens.VehicleStatusScreen1
 import com.example.checklistdigital.ui.screens.VehicleStatusScreen2
 
 
+
 @Composable
 fun ChecklistNavGraph(
     navController: NavHostController = rememberNavController()
 ){
     val backStackEntry by navController.currentBackStackEntryAsState()
-//    val currentScreen = ChecklistMainScreen.valueOf(
-//        backStackEntry?.destination?.route ?: ChecklistMainScreen.Client.name
-//        )
-
+    val currentScreen = ChecklistMainScreen.valueOf(
+        backStackEntry?.destination?.route?.substringBefore("/") ?: ChecklistMainScreen.Client.name
+    )
 
     Scaffold(
         topBar = {
@@ -51,7 +53,7 @@ fun ChecklistNavGraph(
             startDestination = ChecklistMainScreen.Home.name,
             modifier = Modifier
         ){
-            composable (route = ChecklistMainScreen.Home.name){
+            composable(route = ChecklistMainScreen.Home.name){
                 ChecklistHomeScreen(
                     navigateToItemEntry = { navController.navigate(ChecklistMainScreen.Client.name) },
                     navigateToItemUpdate = { navController.navigate("${ChecklistMainScreen.Client.name}/$it") },
@@ -59,65 +61,89 @@ fun ChecklistNavGraph(
                         .padding(contentPadding)
                 )
             }
-            // Route for creating NEW checklist (no parameter)
+
+            // Route for creating NEW checklist
             composable(route = ChecklistMainScreen.Client.name) {
                 ClientInfoScreen(
                     navController = navController,
-                    clientId = -1,  // New checklist
-                    onNextClick = { navController.navigate(ChecklistMainScreen.Address.name) },
+                    clientId = -1,
+                    onNextClick = { clientId ->
+                        navController.navigate("${ChecklistMainScreen.Address.name}/$clientId")
+                    },
                     onBackClick = { navController.navigate(ChecklistMainScreen.Home.name) },
-                    backButtonState = true,
-                    modifier = Modifier
-                        .padding(contentPadding)
-                )
-            }
-            // Route for EDITING existing checklist (with parameter)
-            composable(route = "${ChecklistMainScreen.Client.name}/{clientId}") { backStackEntry ->
-                val clientId = backStackEntry.arguments?.getString("clientId")?.toIntOrNull() ?: -1
-                ClientInfoScreen(
-                    navController = navController,
-                    clientId = clientId,  // Edit mode
-                    onNextClick = { navController.navigate(ChecklistMainScreen.Address.name) },
-                    onBackClick = { navController.navigate(ChecklistMainScreen.Home.name) },
-                    backButtonState = true,
-                    modifier = Modifier
-                        .padding(contentPadding)
-                )
-            }
-            composable(route = ChecklistMainScreen.Address.name) {
-                val clientId = navController.getBackStackEntry(ChecklistMainScreen.Client.name)
-                    .savedStateHandle.get<Int>("clientId") ?: -1
-                AddressInfoScreen(
-                    clientId = clientId,
-                    onNextClick = { navController.navigate(ChecklistMainScreen.Vehicle.name) },
-                    onBackClick = { navController.navigate(ChecklistMainScreen.Client.name) },
-                    modifier = Modifier
-                        .padding(contentPadding)
-                )
-            }
-            composable(route = ChecklistMainScreen.Vehicle.name) {
-                val clientId = navController.getBackStackEntry(ChecklistMainScreen.Client.name)
-                    .savedStateHandle.get<Int>("clientId") ?: -1
-                VehicleStatusScreen1(
-                    clientId = clientId,
-                    onNextClick = { navController.navigate(ChecklistMainScreen.Info.name) },
-                    onBackClick = { navController.navigate(ChecklistMainScreen.Address.name) },
-                    modifier = Modifier
-                        .padding(contentPadding)
-                )
-            }
-            composable(route = ChecklistMainScreen.Info.name) {
-                val clientId = navController.getBackStackEntry(ChecklistMainScreen.Client.name)
-                    .savedStateHandle.get<Int>("clientId") ?: -1
-                VehicleStatusScreen2(
-                    clientId = clientId,
-                    onNextClick = { navController.navigate(ChecklistMainScreen.Home.name) },
-                    onBackClick = { navController.navigate(ChecklistMainScreen.Vehicle.name) },
+                    backButtonState = false,
                     modifier = Modifier
                         .padding(contentPadding)
                 )
             }
 
+            // Route for EDITING existing checklist
+            composable(
+                route = "${ChecklistMainScreen.Client.name}/{clientId}",
+                arguments = listOf(navArgument("clientId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val clientId = backStackEntry.arguments?.getInt("clientId") ?: -1
+                ClientInfoScreen(
+                    navController = navController,
+                    clientId = clientId,
+                    onNextClick = { clientId ->
+                        navController.navigate("${ChecklistMainScreen.Address.name}/$clientId")
+                    },
+                    onBackClick = { navController.navigate(ChecklistMainScreen.Home.name) },
+                    backButtonState = true,
+                    modifier = Modifier
+                        .padding(contentPadding)
+                )
+            }
+
+            // Address screen with clientId as route parameter
+            composable(
+                route = "${ChecklistMainScreen.Address.name}/{clientId}",
+                arguments = listOf(navArgument("clientId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val clientId = backStackEntry.arguments?.getInt("clientId") ?: -1
+                AddressInfoScreen(
+                    clientId = clientId,
+                    onNextClick = {
+                        navController.navigate("${ChecklistMainScreen.Vehicle.name}/$clientId")
+                    },
+                    onBackClick = { navController.popBackStack() },
+                    modifier = Modifier
+                        .padding(contentPadding)
+                )
+            }
+
+            // Vehicle Status 1 screen with clientId as route parameter
+            composable(
+                route = "${ChecklistMainScreen.Vehicle.name}/{clientId}",
+                arguments = listOf(navArgument("clientId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val clientId = backStackEntry.arguments?.getInt("clientId") ?: -1
+                VehicleStatusScreen1(
+                    clientId = clientId,
+                    onNextClick = {
+                        navController.navigate("${ChecklistMainScreen.Info.name}/$clientId")
+                    },
+                    onBackClick = { navController.popBackStack() },
+                    modifier = Modifier
+                        .padding(contentPadding)
+                )
+            }
+
+            // Vehicle Status 2 screen with clientId as route parameter
+            composable(
+                route = "${ChecklistMainScreen.Info.name}/{clientId}",
+                arguments = listOf(navArgument("clientId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val clientId = backStackEntry.arguments?.getInt("clientId") ?: -1
+                VehicleStatusScreen2(
+                    clientId = clientId,
+                    onNextClick = { navController.navigate(ChecklistMainScreen.Home.name) },
+                    onBackClick = { navController.popBackStack() },
+                    modifier = Modifier
+                        .padding(contentPadding)
+                )
+            }
         }
     }
 }
