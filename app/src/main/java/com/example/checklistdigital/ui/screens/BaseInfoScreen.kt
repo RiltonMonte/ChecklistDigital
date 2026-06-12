@@ -127,6 +127,44 @@ fun SwitchRow(
     }
 }
 
+@Composable
+fun ButtonSelection(
+    modifier: Modifier = Modifier,
+    radioOptions: List<String>,
+    vehicleDetails2: Int,
+    onClickChange: (Int) -> Unit = {},
+    onOptionSelected: (String) -> Unit = {},
+){
+    Row(modifier.selectableGroup()) {
+        radioOptions.forEach { text ->
+            Column (
+                Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .selectable(
+                        selected = (text == radioOptions[vehicleDetails2]),
+                        onClick = {onClickChange(radioOptions.indexOf(text))},
+                        role = Role.RadioButton
+                    )
+                    .padding(horizontal = 16.dp)
+                    .weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = text,
+                    fontSize = 14.sp,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+                RadioButton(
+                    selected = (text == radioOptions[vehicleDetails2]),
+                    onClick = null
+                )
+            }
+        }
+    }
+}
+
 
 
 

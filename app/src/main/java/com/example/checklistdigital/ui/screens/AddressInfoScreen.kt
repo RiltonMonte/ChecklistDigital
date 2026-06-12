@@ -66,82 +66,82 @@ fun AddressInfoScreen(
     }
 }
 
-@Composable
-fun InfoFields(
-    uiState: AddressUiState,
-    onValueChange: (AddressDetails) -> Unit = {},
-    modifier: Modifier,
-) {
-    Column(modifier = modifier) {
-        Card(modifier = Modifier.padding(4.dp)) {
-            Text(
-                text = "Endereço Origem",
-                modifier = Modifier.padding(8.dp)
-            )
-            InfoScreenField(
-                infoInput = uiState.addressDetails.originStreet,
-                onInfoInputChange = { onValueChange(uiState.addressDetails.copy(originStreet = it)) },
-                labelName = { Text("Rua/Avenida") },
-                modifier = Modifier
-            )
-            InfoScreenField(
-                infoInput = uiState.addressDetails.originNumber,
-                onInfoInputChange = { onValueChange(uiState.addressDetails.copy(originNumber = it)) },
-                labelName = { Text("Número") },
-                modifier = Modifier
-            )
-            InfoScreenField(
-                infoInput = uiState.addressDetails.originDistrict,
-                onInfoInputChange = { onValueChange(uiState.addressDetails.copy(originDistrict = it)) },
-                labelName = { Text("Bairro") },
-                modifier = Modifier
-            )
-            InfoScreenField(
-                infoInput = uiState.addressDetails.originCity,
-                onInfoInputChange = { onValueChange(uiState.addressDetails.copy(originCity = it)) },
-                labelName = { Text("Cidade") },
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-        }
-        Card(modifier = Modifier.padding(4.dp)) {
-            Text(
-                text = "Endereço Destino",
-                modifier = Modifier.padding(8.dp)
-            )
-            InfoScreenField(
-                infoInput = uiState.addressDetails.destinyStreet,
-                onInfoInputChange = { onValueChange(uiState.addressDetails.copy(destinyStreet = it)) },
-                labelName = { Text("Rua/Avenida") },
-                modifier = Modifier
-            )
-            InfoScreenField(
-                infoInput = uiState.addressDetails.destinyNumber,
-                onInfoInputChange = { onValueChange(uiState.addressDetails.copy(destinyNumber = it)) },
-                labelName = { Text("Número") },
-                modifier = Modifier
-            )
-            InfoScreenField(
-                infoInput = uiState.addressDetails.destinyDistrict,
-                onInfoInputChange = { onValueChange(uiState.addressDetails.copy(destinyDistrict = it)) },
-                labelName = { Text("Bairro") },
-                modifier = Modifier
-            )
-            InfoScreenField(
-                infoInput = uiState.addressDetails.destinyCity,
-                onInfoInputChange = {
-                    onValueChange(uiState.addressDetails.copy(destinyCity = it)) },
-                labelName = { Text("Cidade") },
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-        }
-
-    }
-}
-@Composable
-@Preview(
-    showBackground = true,
-    showSystemUi = true
-)
-fun AddressInfoScreenPreview(){
-    AddressInfoScreen(modifier = Modifier)
-}
+//@Composable
+//fun InfoFields(
+//    uiState: AddressUiState,
+//    onValueChange: (AddressDetails) -> Unit = {},
+//    modifier: Modifier,
+//) {
+//    Column(modifier = modifier) {
+//        Card(modifier = Modifier.padding(4.dp)) {
+//            Text(
+//                text = "Endereço Origem",
+//                modifier = Modifier.padding(8.dp)
+//            )
+//            InfoScreenField(
+//                infoInput = uiState.addressDetails.originStreet,
+//                onInfoInputChange = { onValueChange(uiState.addressDetails.copy(originStreet = it)) },
+//                labelName = { Text("Rua/Avenida") },
+//                modifier = Modifier
+//            )
+//            InfoScreenField(
+//                infoInput = uiState.addressDetails.originNumber,
+//                onInfoInputChange = { onValueChange(uiState.addressDetails.copy(originNumber = it)) },
+//                labelName = { Text("Número") },
+//                modifier = Modifier
+//            )
+//            InfoScreenField(
+//                infoInput = uiState.addressDetails.originDistrict,
+//                onInfoInputChange = { onValueChange(uiState.addressDetails.copy(originDistrict = it)) },
+//                labelName = { Text("Bairro") },
+//                modifier = Modifier
+//            )
+//            InfoScreenField(
+//                infoInput = uiState.addressDetails.originCity,
+//                onInfoInputChange = { onValueChange(uiState.addressDetails.copy(originCity = it)) },
+//                labelName = { Text("Cidade") },
+//                modifier = Modifier.padding(bottom = 8.dp)
+//            )
+//        }
+//        Card(modifier = Modifier.padding(4.dp)) {
+//            Text(
+//                text = "Endereço Destino",
+//                modifier = Modifier.padding(8.dp)
+//            )
+//            InfoScreenField(
+//                infoInput = uiState.addressDetails.destinyStreet,
+//                onInfoInputChange = { onValueChange(uiState.addressDetails.copy(destinyStreet = it)) },
+//                labelName = { Text("Rua/Avenida") },
+//                modifier = Modifier
+//            )
+//            InfoScreenField(
+//                infoInput = uiState.addressDetails.destinyNumber,
+//                onInfoInputChange = { onValueChange(uiState.addressDetails.copy(destinyNumber = it)) },
+//                labelName = { Text("Número") },
+//                modifier = Modifier
+//            )
+//            InfoScreenField(
+//                infoInput = uiState.addressDetails.destinyDistrict,
+//                onInfoInputChange = { onValueChange(uiState.addressDetails.copy(destinyDistrict = it)) },
+//                labelName = { Text("Bairro") },
+//                modifier = Modifier
+//            )
+//            InfoScreenField(
+//                infoInput = uiState.addressDetails.destinyCity,
+//                onInfoInputChange = {
+//                    onValueChange(uiState.addressDetails.copy(destinyCity = it)) },
+//                labelName = { Text("Cidade") },
+//                modifier = Modifier.padding(bottom = 8.dp)
+//            )
+//        }
+//
+//    }
+//}
+//@Composable
+//@Preview(
+//    showBackground = true,
+//    showSystemUi = true
+//)
+//fun AddressInfoScreenPreview(){
+//    AddressInfoScreen(modifier = Modifier)
+//}
