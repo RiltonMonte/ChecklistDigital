@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.example.checklistdigital.ui.screens.ChecklistScreen
+import com.example.checklistdigital.ui.navigation.ChecklistNavGraph
 import com.example.checklistdigital.ui.theme.ChecklistDigitalTheme
 
 class MainActivity : ComponentActivity() {
@@ -33,7 +33,7 @@ class MainActivity : ComponentActivity() {
                         ChecklistTopAppBar()
                     }
                 ){contentPadding ->
-                    ChecklistScreen(modifier = Modifier.padding(contentPadding))
+                    ChecklistNavGraph(modifier = Modifier.padding(contentPadding))
                 }
 
             }

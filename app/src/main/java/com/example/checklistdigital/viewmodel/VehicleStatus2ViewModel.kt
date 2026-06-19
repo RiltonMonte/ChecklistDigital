@@ -56,7 +56,7 @@ class VehicleStatus2ViewModel (private val checklistRepository: ChecklistReposit
         vehicleStatus2UiState = VehicleStatus2UiState()
     }
 
-    private fun validateInput(uiState: VehicleStatus2Details = vehicleStatus2UiState.vehicleStatus2Details): Boolean {
+    fun validateInput(uiState: VehicleStatus2Details = vehicleStatus2UiState.vehicleStatus2Details): Boolean {
         return with(uiState) {
             observacoes.isNotBlank()
         }

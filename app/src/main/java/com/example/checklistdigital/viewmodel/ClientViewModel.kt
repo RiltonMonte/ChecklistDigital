@@ -63,7 +63,7 @@ class ClientViewModel (private val checklistRepository: ChecklistRepository) : V
         clientUiState = ClientUiState()
     }
 
-    private fun validateInput(uiState: ClientDetails = clientUiState.clientDetails): Boolean {
+    fun validateInput(uiState: ClientDetails = clientUiState.clientDetails): Boolean {
         return with(uiState) {
             serviceDate.isNotBlank() && clientName.isNotBlank() && insurance.isNotBlank() && accident.isNotBlank() && phone.isNotBlank()
         }

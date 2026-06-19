@@ -18,11 +18,11 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,10 +30,10 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun InfoScreenField(
+    modifier: Modifier = Modifier,
     infoInput: String,
     onInfoInputChange: (String) -> Unit,
-    labelName: @Composable () -> Unit,
-    modifier: Modifier = Modifier
+    labelName: @Composable () -> Unit
 ){
     Column(modifier = modifier) {
         OutlinedTextField(
@@ -58,24 +58,28 @@ fun InfoScreenButtons(
     onBackClick: () -> Unit = {},
     onNextClick: () -> Unit = {},
     backButtonState: Boolean = true,
+    nextButtonState: Boolean = true,
+    text1: String,
+    text2: String,
     modifier: Modifier = Modifier
 ){
     Row(
-        modifier = modifier.padding(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(64.dp)
+        modifier = modifier.padding(8.dp).fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Button(
             onClick = onBackClick,
             enabled = backButtonState,
             modifier = Modifier
         ) {
-            Text("Voltar")
+            Text(text = text1)
         }
         Button(
             onClick = onNextClick,
+            enabled = nextButtonState,
             modifier = Modifier
         ) {
-            Text("Próximo")
+            Text(text = text2)
         }
     }
 }
@@ -189,7 +193,11 @@ fun InfoScreenFieldPreview(){
     showSystemUi = true
 )
 fun InfoScreenButtonsPreview(){
-    InfoScreenButtons()
+    InfoScreenButtons(
+        text1 = "Voltar",
+        text2 = "Próximo",
+        modifier = Modifier
+    )
 }
 
 @Composable

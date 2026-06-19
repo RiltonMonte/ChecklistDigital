@@ -52,7 +52,7 @@ class AddressViewModel( private val checklistRepository: ChecklistRepository) : 
         addressUiState = AddressUiState()
     }
 
-    private fun validateInput(uiState: AddressDetails = addressUiState.addressDetails): Boolean {
+    fun validateInput(uiState: AddressDetails = addressUiState.addressDetails): Boolean {
         return with(uiState) {
             originStreet.isNotBlank() && originNumber.isNotBlank() && originDistrict.isNotBlank() && originCity.isNotBlank() &&
                     destinyStreet.isNotBlank() && destinyNumber.isNotBlank() && destinyDistrict.isNotBlank() && destinyCity.isNotBlank()

@@ -1,5 +1,6 @@
 package com.example.checklistdigital.ui.screens
 
+import android.graphics.drawable.Icon
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,28 +11,36 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.checklistdigital.R
 import com.example.checklistdigital.viewmodel.ChecklistHomeViewModel
 import com.example.checklistdigital.viewmodel.ChecklistSummary
 import com.example.checklistdigital.viewmodel.ChecklistViewModelProvider
@@ -141,7 +150,6 @@ fun ChecklistHomeScreen(
                             }
                         }
 
-                        // Edit and Delete Buttons
                         if (uiState.selectedClientId != null) {
                             Column(
                                 modifier = Modifier
@@ -178,7 +186,7 @@ fun ChecklistHomeScreen(
                 }
             }
         }
-        // Floating Action Button
+
         ExtendedFloatingActionButton(
             onClick = navigateToItemEntry,
             icon = { Icon(Icons.Filled.Add, contentDescription = "Novo Checklist") },
@@ -219,72 +227,115 @@ fun ChecklistCard(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Client Name and Date
+            // Data e Seguradora
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = checklistSummary.clientName,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.weight(1f)
-                )
-                Text(
-                    text = checklistSummary.serviceDate,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Column {
+                    Text(
+                        text = "Seguradora",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = checklistSummary.insurance,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                    )
+                }
+                Column {
+                    Text(
+                        text = "Data",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = checklistSummary.serviceDate,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
 
-            // Vehicle Info
+            // Veiculo e Botão
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
-            ) {
+            ){
                 Column {
-                    Text(
-                        text = "Veículo",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = checklistSummary.vehicle,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                    Row(
+                        modifier = Modifier
+                    ) {
+                        Column {
+                            Text(
+                                text = "Veículo",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                text = checklistSummary.vehicle,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                    }
+                    // Placa
+                    Row(
+                        modifier = Modifier
+                    ) {
+                        Column {
+                            Text(
+                                text = "Placa",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                text = checklistSummary.plate,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                    }
                 }
-                Column {
-                    Text(
-                        text = "Placa",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = checklistSummary.plate,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                Column() {
+                    Spacer(modifier.height(10.dp))
+                    OutlinedIconButton(
+                        onClick = { /*TODO*/ },
+                        modifier = Modifier.width(64.dp).height(52.dp).padding(end = 12.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.add_a_photo_24px),
+                            contentDescription = "Adicionar Foto",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(48.dp).padding(4.dp)
+                        )
+                    }
                 }
-            }
-
-            // Phone
-            Row(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = "Telefone: ",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = checklistSummary.phone,
-                    style = MaterialTheme.typography.bodyMedium
-                )
             }
         }
     }
 }
 
+@Composable
+@Preview(
+    showBackground = true
+)
+fun ChecklistCardPreview() {
+    ChecklistCard(
+        checklistSummary = ChecklistSummary(
+            clientId = 1,
+            insurance = "Bradesco",
+            serviceDate = "15/05/2026",
+            vehicle = "Honda Civic",
+            plate = "ABC-1234",
+            phone = "(11) 99999-8888"
+        ),
+        isSelected = true,
+        onCardClick = {}
+    )
+}
 
 @Composable
 @Preview(
@@ -298,21 +349,4 @@ fun ChecklistHomeScreenPreview() {
     )
 }
 
-@Composable
-@Preview(
-    showBackground = true
-)
-fun ChecklistCardPreview() {
-    ChecklistCard(
-        checklistSummary = ChecklistSummary(
-            clientId = 1,
-            clientName = "João Silva",
-            serviceDate = "15/05/2026",
-            vehicle = "Honda Civic",
-            plate = "ABC-1234",
-            phone = "(11) 99999-8888"
-        ),
-        isSelected = true,
-        onCardClick = {}
-    )
-}
+

@@ -57,7 +57,7 @@ class VehicleInfoViewModel(private val checklistRepository: ChecklistRepository)
         vehicleInfoUiState = vehicleInfoUiState()
     }
 
-    private fun validateInput(uiState: VehicleInfoDetails = vehicleInfoUiState.vehicleInfoDetails): Boolean {
+    fun validateInput(uiState: VehicleInfoDetails = vehicleInfoUiState.vehicleInfoDetails): Boolean {
         return with(uiState) {
             vehicle.isNotBlank() && plate.isNotBlank() && color.isNotBlank() && year.isNotBlank()
         }

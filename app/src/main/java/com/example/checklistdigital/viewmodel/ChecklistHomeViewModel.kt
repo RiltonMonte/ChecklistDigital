@@ -3,17 +3,15 @@ package com.example.checklistdigital.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.checklistdigital.data.ChecklistRepository
-import com.example.checklistdigital.data.Client
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 data class ChecklistSummary(
     val clientId: Int,
-    val clientName: String,
+    val insurance: String,
     val serviceDate: String,
     val vehicle: String,
     val plate: String,
@@ -59,7 +57,7 @@ class ChecklistHomeViewModel(
                                 summaries.add(
                                     ChecklistSummary(
                                         clientId = client.id,
-                                        clientName = client.clientName,
+                                        insurance = client.insurance,
                                         serviceDate = client.serviceDate,
                                         vehicle = vehicleInfo!!.vehicle,
                                         plate = vehicleInfo!!.plate,
