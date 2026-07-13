@@ -27,12 +27,13 @@ import androidx.navigation.navArgument
 import com.example.checklistdigital.R
 import com.example.checklistdigital.ui.screens.ChecklistHomeScreen
 import com.example.checklistdigital.ui.screens.ChecklistScreen
+import com.example.checklistdigital.ui.screens.PhotoScreen
 
 
 @Composable
 fun ChecklistNavGraph(
+    modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    modifier: Modifier = Modifier
 ){
     val backStackEntry by navController.currentBackStackEntryAsState()
 
@@ -47,6 +48,7 @@ fun ChecklistNavGraph(
                 ChecklistHomeScreen(
                     navigateToItemEntry = { navController.navigate(ChecklistMainScreen.Checklist.name) },
                     navigateToItemUpdate = { navController.navigate("${ChecklistMainScreen.Checklist.name}/$it") },
+                    navigateToPhoto = { navController.navigate("${ChecklistMainScreen.Photo.name}/$it") },
                     modifier = Modifier
                         .padding(contentPadding)
                 )
@@ -78,6 +80,20 @@ fun ChecklistNavGraph(
                     modifier = Modifier
                         .padding(contentPadding)
                 )
+            }
+
+            composable(
+                route = "${ChecklistMainScreen.Photo.name}/{clientId}",
+                arguments = listOf(navArgument("clientId") { type = NavType.IntType })
+            ){ backStackEntry ->
+                val clientId = backStackEntry.arguments?.getInt("clientId") ?: -1
+                PhotoScreen(
+                    clientId = clientId,
+                    onBackClick = { navController.navigate(ChecklistMainScreen.Home.name) },
+                    modifier = Modifier
+                        .padding(contentPadding)
+                )
+
             }
         }
     }

@@ -143,7 +143,6 @@ fun ClientScreen(
             text = "Cliente",
             modifier = Modifier.padding(8.dp)
         )
-        //TODO: alterar formatação da data
         InfoScreenField(
             infoInput = uiState.clientDetails.serviceDate,
             onInfoInputChange = { input->

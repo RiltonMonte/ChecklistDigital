@@ -50,6 +50,7 @@ import com.example.checklistdigital.viewmodel.ChecklistViewModelProvider
 fun ChecklistHomeScreen(
     navigateToItemEntry: () -> Unit,
     navigateToItemUpdate: (Int) -> Unit,
+    navigateToPhoto: (Int) -> Unit,
     modifier: Modifier = Modifier,
     checklistHomeViewModel: ChecklistHomeViewModel = viewModel(factory = ChecklistViewModelProvider.Factory)
 ) {
@@ -145,6 +146,9 @@ fun ChecklistHomeScreen(
                                         } else {
                                             checklistHomeViewModel.selectChecklist(checklistSummary.clientId)
                                         }
+                                    },
+                                    navigateToPhoto = { clientId ->
+                                        navigateToPhoto(clientId)
                                     }
                                 )
                             }
@@ -205,7 +209,7 @@ fun ChecklistCard(
     checklistSummary: ChecklistSummary,
     isSelected: Boolean = false,
     onCardClick: () -> Unit,
-
+    navigateToPhoto: (Int) -> Unit = {}
 ) {
     Card(
         modifier = modifier
@@ -261,7 +265,7 @@ fun ChecklistCard(
                 }
             }
 
-            // Veiculo e Botão
+            // Veiculo e Placa
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -282,7 +286,6 @@ fun ChecklistCard(
                             )
                         }
                     }
-                    // Placa
                     Row(
                         modifier = Modifier
                     ) {
@@ -299,10 +302,11 @@ fun ChecklistCard(
                         }
                     }
                 }
+                //Botão Foto
                 Column() {
                     Spacer(modifier.height(10.dp))
                     OutlinedIconButton(
-                        onClick = { /*TODO*/ },
+                        onClick = { navigateToPhoto(checklistSummary.clientId) },
                         modifier = Modifier.width(64.dp).height(52.dp).padding(end = 12.dp)
                     ) {
                         Icon(
@@ -345,7 +349,8 @@ fun ChecklistCardPreview() {
 fun ChecklistHomeScreenPreview() {
     ChecklistHomeScreen(
         navigateToItemEntry = {},
-        navigateToItemUpdate = {}
+        navigateToItemUpdate = {},
+        navigateToPhoto = {}
     )
 }
 
