@@ -25,6 +25,9 @@ interface ChecklistDao {
     @Insert
     suspend fun insertVehicleStatus2(vehicleStatus2: VehicleStatus2)
 
+    @Insert
+    suspend fun insertPhoto(photo: Photo): Long
+
     //Updates
     @Update
     suspend fun updateClient(client: Client)
@@ -57,6 +60,9 @@ interface ChecklistDao {
     @Delete
     suspend fun deleteVehicleStatus2(vehicleStatus2: VehicleStatus2)
 
+    @Delete
+    suspend fun deletePhoto(photo: Photo)
+
     //Queries
     //Chama todos os Checklists
     @Query("SELECT * FROM client")
@@ -79,5 +85,11 @@ interface ChecklistDao {
 
     @Query("SELECT * FROM vehicleInfo WHERE clientId = :clientId")
     fun getVehicleInfoByClientId(clientId: Int): Flow<VehicleInfo>
+
+    @Query("SELECT * FROM photo WHERE clientId = :clientId ORDER BY timestamp DESC")
+    fun getPhotosByClientId(clientId: Int): Flow<List<Photo>>
+
+    @Query("SELECT * FROM photo WHERE id = :photoId")
+    fun getPhoto(photoId: Int): Flow<Photo>
 
 }

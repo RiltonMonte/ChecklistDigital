@@ -9,6 +9,7 @@ class OfflineChecklistRepository(private val checklistDao: ChecklistDao) : Check
     override suspend fun insertAddress(address: Address) = checklistDao.insertAddress(address)
     override suspend fun insertVehicleStatus1(vehicleStatus1: VehicleStatus1) = checklistDao.insertVehicleStatus1(vehicleStatus1)
     override suspend fun insertVehicleStatus2(vehicleStatus2: VehicleStatus2) = checklistDao.insertVehicleStatus2(vehicleStatus2)
+    override suspend fun insertPhoto(photo: Photo): Long = checklistDao.insertPhoto(photo)
 
     override suspend fun updateClient(client: Client) = checklistDao.updateClient(client)
     override suspend fun updateVehicleInfo(vehicleInfo: VehicleInfo) = checklistDao.updateVehicleInfo(vehicleInfo)
@@ -21,6 +22,7 @@ class OfflineChecklistRepository(private val checklistDao: ChecklistDao) : Check
     override suspend fun deleteAddress(address: Address) = checklistDao.deleteAddress(address)
     override suspend fun deleteVehicleStatus1(vehicleStatus1: VehicleStatus1) = checklistDao.deleteVehicleStatus1(vehicleStatus1)
     override suspend fun deleteVehicleStatus2(vehicleStatus2: VehicleStatus2) = checklistDao.deleteVehicleStatus2(vehicleStatus2)
+    override suspend fun deletePhoto(photo: Photo) = checklistDao.deletePhoto(photo)
 
     override fun getChecklist(): Flow<List<Client>> = checklistDao.getChecklist()
     override fun getClient(id: Int): Flow<Client> = checklistDao.getClient(id)
@@ -29,5 +31,7 @@ class OfflineChecklistRepository(private val checklistDao: ChecklistDao) : Check
     override fun getAddress(id: Int): Flow<Address> = checklistDao.getAddress(id)
     override fun getVehicleStatus1(id: Int): Flow<VehicleStatus1> = checklistDao.getVehicleStatus1(id)
     override fun getVehicleStatus2(id: Int): Flow<VehicleStatus2> = checklistDao.getVehicleStatus2(id)
+    override fun getPhotosByClientId(clientId: Int): Flow<List<Photo>> = checklistDao.getPhotosByClientId(clientId)
+    override fun getPhoto(photoId: Int): Flow<Photo> = checklistDao.getPhoto(photoId)
 
 }

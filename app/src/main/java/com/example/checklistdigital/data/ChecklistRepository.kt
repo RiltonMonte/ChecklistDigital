@@ -9,6 +9,7 @@ interface ChecklistRepository {
     suspend fun insertAddress(address: Address)
     suspend fun insertVehicleStatus1(vehicleStatus1: VehicleStatus1)
     suspend fun insertVehicleStatus2(vehicleStatus2: VehicleStatus2)
+    suspend fun insertPhoto(photo: Photo): Long
 
     // Updates
     suspend fun updateClient(client: Client)
@@ -23,6 +24,7 @@ interface ChecklistRepository {
     suspend fun deleteAddress(address: Address)
     suspend fun deleteVehicleStatus1(vehicleStatus1: VehicleStatus1)
     suspend fun deleteVehicleStatus2(vehicleStatus2: VehicleStatus2)
+    suspend fun deletePhoto(photo: Photo)
 
     // Queries
     fun getChecklist(): Flow<List<Client>>
@@ -32,5 +34,7 @@ interface ChecklistRepository {
     fun getAddress(id: Int): Flow<Address>
     fun getVehicleStatus1(id: Int): Flow<VehicleStatus1>
     fun getVehicleStatus2(id: Int): Flow<VehicleStatus2>
+    fun getPhotosByClientId(clientId: Int): Flow<List<Photo>>
+    fun getPhoto(photoId: Int): Flow<Photo>
 
 }
