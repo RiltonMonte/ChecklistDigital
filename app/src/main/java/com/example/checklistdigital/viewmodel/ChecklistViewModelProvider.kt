@@ -27,6 +27,9 @@ object ChecklistViewModelProvider {
         initializer {
             VehicleStatus2ViewModel(checklistApplication().container.checklistRepository)
         }
+        initializer {
+            PhotoViewModel(checklistApplication().container.checklistRepository)
+        }
     }
 }
 

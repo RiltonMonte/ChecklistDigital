@@ -18,15 +18,20 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,7 +39,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
+import com.example.checklistdigital.data.Photo
+import com.example.checklistdigital.viewmodel.ChecklistViewModelProvider
+import com.example.checklistdigital.viewmodel.PhotoViewModel
+import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -42,13 +52,23 @@ import java.util.Locale
 
 @Composable
 fun PhotoScreen(
+    modifier: Modifier = Modifier,
     clientId: Int = -1,
     onBackClick: () -> Unit = {},
-    modifier: Modifier = Modifier
+    photoViewModel: PhotoViewModel = viewModel(factory = ChecklistViewModelProvider.Factory)
 ) {
     val context = LocalContext.current
-    var photoUris by remember { mutableStateOf<List<Uri>>(emptyList()) }
+    val coroutineScope = rememberCoroutineScope()
     var currentPhotoUri by remember { mutableStateOf<Uri?>(null) }
+    val uiState = photoViewModel.photoUiState
+    val photoUris = photoViewModel.photoUris
+
+    // Load existing photos when screen opens
+    LaunchedEffect(clientId) {
+        if (clientId > 0) {
+            photoViewModel.loadPhotos(clientId)
+        }
+    }
 
     // Launcher for taking a photo
     val takePictureLauncher = rememberLauncherForActivityResult(
@@ -56,7 +76,7 @@ fun PhotoScreen(
     ) { success ->
         if (success) {
             currentPhotoUri?.let { uri ->
-                photoUris = photoUris + uri
+                photoViewModel.addPhotoUri(uri)
             }
         }
     }
@@ -75,32 +95,81 @@ fun PhotoScreen(
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
-            // Photo Grid
-            if (photoUris.isNotEmpty()) {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
+            // Error message
+            if (uiState.error != null) {
+                Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(1f),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                        .padding(bottom = 8.dp)
                 ) {
-                    items(photoUris.size) { index ->
-                        PhotoThumbnail(photoUri = photoUris[index])
-                    }
+                    Text(
+                        text = uiState.error ?: "",
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(12.dp),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
-            } else {
+            }
+
+            // Loading indicator
+            if (uiState.isLoading) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "Nenhuma foto adicionada",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    CircularProgressIndicator()
+                }
+            } else {
+                // Combined photo display (existing + new)
+                val allPhotos = uiState.photos + photoUris.map {
+                    Photo(
+                        clientId = clientId,
+                        photoPath = it.toString()
                     )
+                }
+
+                if (allPhotos.isNotEmpty()) {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(allPhotos.size) { index ->
+                            val photo = allPhotos[index]
+                            val isNewPhoto = index >= uiState.photos.size
+                            PhotoThumbnail(
+                                photo = photo,
+                                isNewPhoto = isNewPhoto,
+                                onDelete = {
+                                    if (isNewPhoto) {
+                                        photoViewModel.removePhotoUri(Uri.parse(photo.photoPath))
+                                    } else {
+                                        coroutineScope.launch {
+                                            photoViewModel.deletePhoto(photo)
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Nenhuma foto adicionada",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
 
@@ -138,15 +207,31 @@ fun PhotoScreen(
                 }
             }
 
+
             // Action Buttons
             InfoScreenButtons(
                 text1 = "Cancelar",
-                onBackClick = onBackClick,
-                text2 = "Salvar",
-                nextButtonState = photoUris.isNotEmpty(),
-                onNextClick = {
-                    // TODO: Save photos to database or file system
+                onBackClick = {
+                    photoViewModel.clearPhotoUris()
                     onBackClick()
+                },
+                text2 = "Salvar",
+                nextButtonState = (photoUris.isNotEmpty() || uiState.photos.isNotEmpty()) && !uiState.isSaving,
+                onNextClick = {
+                    if (clientId > 0) {
+                        coroutineScope.launch {
+                            // Save new photos from URIs
+                            val photoPaths = photoUris.map { uri ->
+                                savePhotoToInternalStorage(context, uri, clientId)
+                            }
+
+                            val success = photoViewModel.savePhotos(clientId, photoPaths)
+                            if (success) {
+                                photoViewModel.loadPhotos(clientId)
+                                onBackClick()
+                            }
+                        }
+                    }
                 },
                 modifier = Modifier
             )
@@ -155,20 +240,57 @@ fun PhotoScreen(
 }
 
 @Composable
-fun PhotoThumbnail(photoUri: Uri) {
+fun PhotoThumbnail(
+    photo: Photo,
+    isNewPhoto: Boolean = false,
+    onDelete: () -> Unit = {}
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .height(150.dp)
     ) {
         Image(
-            painter = rememberAsyncImagePainter(model = photoUri),
+            painter = rememberAsyncImagePainter(model = photo.photoPath),
             contentDescription = "Photo thumbnail",
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
         )
     }
+
+    // Delete button overlay
+    IconButton(
+        onClick = onDelete,
+        modifier = Modifier
+            .padding(4.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Default.Delete,
+            contentDescription = "Deletar Foto",
+            tint = MaterialTheme.colorScheme.error,
+            modifier = Modifier
+                .size(24.dp)
+                .padding(4.dp)
+        )
+    }
+
+    // "New" indicator
+    if (isNewPhoto) {
+        Card(
+            modifier = Modifier
+                .padding(4.dp)
+        ) {
+            Text(
+                text = "Nova",
+                style = MaterialTheme.typography.labelSmall,
+                modifier = Modifier.padding(4.dp),
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
 }
+
+
 
 /**
  * Creates a temporary photo file and returns its URI
@@ -188,4 +310,26 @@ fun createPhotoUri(context: Context): Uri {
         "${context.packageName}.fileprovider",
         image
     )
+}
+
+/**
+ * Saves photo from cache to internal storage with clientId in the path
+ */
+fun savePhotoToInternalStorage(context: Context, photoUri: Uri, clientId: Int): String {
+    val photoDir = File(context.filesDir, "photos/$clientId").apply {
+        if (!exists()) {
+            mkdirs()
+        }
+    }
+
+    val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+    val photoFile = File(photoDir, "photo_${timeStamp}.jpg")
+
+    context.contentResolver.openInputStream(photoUri)?.use { input ->
+        photoFile.outputStream().use { output ->
+            input.copyTo(output)
+        }
+    }
+
+    return photoFile.absolutePath
 }
