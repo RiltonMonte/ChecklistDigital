@@ -1,5 +1,7 @@
 package com.example.checklistdigital.ui.screens
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +20,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.FileDownload
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -29,17 +34,26 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.checklistdigital.R
 import com.example.checklistdigital.viewmodel.ChecklistHomeViewModel
 import com.example.checklistdigital.viewmodel.ChecklistSummary
 import com.example.checklistdigital.viewmodel.ChecklistViewModelProvider
+import com.example.checklistdigital.viewmodel.PdfExportViewModel
+import kotlinx.coroutines.launch
+import java.io.File
 
 
 @Composable
@@ -48,12 +62,73 @@ fun ChecklistHomeScreen(
     navigateToItemUpdate: (Int) -> Unit,
     navigateToPhoto: (Int) -> Unit,
     modifier: Modifier = Modifier,
-    checklistHomeViewModel: ChecklistHomeViewModel = viewModel(factory = ChecklistViewModelProvider.Factory)
+    checklistHomeViewModel: ChecklistHomeViewModel = viewModel(factory = ChecklistViewModelProvider.Factory),
+    pdfExportViewModel: PdfExportViewModel = viewModel(factory = ChecklistViewModelProvider.Factory)
 ) {
     val uiState by checklistHomeViewModel.uiState.collectAsState()
+    val pdfUiState = pdfExportViewModel.uiState
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    var showExportDialog by remember { mutableStateOf(false) }
+    var selectedClientForExport by remember { mutableStateOf<Int?>(null) }
 
     androidx.compose.runtime.LaunchedEffect(Unit) {
         checklistHomeViewModel.deselectChecklist()
+    }
+
+    //Exportar PDF
+    // Success dialog
+    if (pdfUiState.success && pdfUiState.filePath != null) {
+        AlertDialog(
+            onDismissRequest = { pdfExportViewModel.resetState() },
+            title = { Text("PDF Exportado com Sucesso") },
+            text = { Text("O checklist foi exportado como PDF.\n\nCaminho: ${pdfUiState.filePath}") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        // Share the PDF
+                        val file = File(pdfUiState.filePath)
+                        val uri = FileProvider.getUriForFile(
+                            context,
+                            "${context.packageName}.fileprovider",
+                            file
+                        )
+                        val intent = Intent(Intent.ACTION_SEND).apply {
+                            type = "application/pdf"
+                            putExtra(Intent.EXTRA_STREAM, uri)
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        }
+                        context.startActivity(Intent.createChooser(intent, "Compartilhar PDF"))
+                        pdfExportViewModel.resetState()
+                    }
+                ) {
+                    Text("Compartilhar")
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = { pdfExportViewModel.resetState() }
+                ) {
+                    Text("Fechar")
+                }
+            }
+        )
+    }
+
+    // Error dialog
+    if (pdfUiState.error != null) {
+        AlertDialog(
+            onDismissRequest = { pdfExportViewModel.resetState() },
+            title = { Text("Erro ao Exportar") },
+            text = { Text(pdfUiState.error ?: "Erro desconhecido") },
+            confirmButton = {
+                Button(
+                    onClick = { pdfExportViewModel.resetState() }
+                ) {
+                    Text("OK")
+                }
+            }
+        )
     }
 
     Box(
@@ -145,7 +220,12 @@ fun ChecklistHomeScreen(
                                     },
                                     navigateToPhoto = { clientId ->
                                         navigateToPhoto(clientId)
-                                    }
+                                    },
+                                    onExportPdf = { clientId ->
+                                        selectedClientForExport = clientId
+                                        showExportDialog = true
+                                    },
+                                    isExportingPdf = pdfUiState.isExporting
                                 )
                             }
                         }
@@ -178,6 +258,23 @@ fun ChecklistHomeScreen(
                                     containerColor = MaterialTheme.colorScheme.error
                                 )
 
+                                ExtendedFloatingActionButton(
+                                    onClick = {
+                                        selectedClientForExport = uiState.selectedClientId
+                                        showExportDialog = true
+                                    },
+                                    //enabled = !pdfUiState.isExporting,
+                                    modifier = Modifier,
+                                    icon = { Icon(Icons.Filled.FileDownload, contentDescription = "Exportar PDF") },
+                                    text = {
+                                        if (pdfUiState.isExporting) {
+                                            CircularProgressIndicator(modifier = Modifier.size(20.dp))
+                                        } else {
+                                            Text("Exportar PDF")
+                                        }
+                                    }
+                                )
+
                                 Spacer(modifier = Modifier.height(56.dp))
 
                             }
@@ -196,6 +293,34 @@ fun ChecklistHomeScreen(
                 .padding(top = 16.dp, bottom = 8.dp, end = 16.dp)
         )
     }
+
+    // Export confirmation dialog
+    if (showExportDialog && selectedClientForExport != null) {
+        AlertDialog(
+            onDismissRequest = { showExportDialog = false },
+            title = { Text("Exportar para PDF?") },
+            text = { Text("Deseja exportar este checklist como PDF? O arquivo será salvo e você poderá compartilhá-lo.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        coroutineScope.launch {
+                            pdfExportViewModel.exportChecklistToPdf(context, selectedClientForExport!!)
+                        }
+                        showExportDialog = false
+                    }
+                ) {
+                    Text("Exportar")
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = { showExportDialog = false }
+                ) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
 }
 
 
@@ -205,7 +330,9 @@ fun ChecklistCard(
     checklistSummary: ChecklistSummary,
     isSelected: Boolean = false,
     onCardClick: () -> Unit,
-    navigateToPhoto: (Int) -> Unit = {}
+    navigateToPhoto: (Int) -> Unit = {},
+    onExportPdf: (Int) -> Unit = {},
+    isExportingPdf: Boolean = false
 ) {
     Card(
         modifier = modifier
@@ -298,19 +425,44 @@ fun ChecklistCard(
                         }
                     }
                 }
-                //Botão Foto
-                Column() {
-                    Spacer(modifier.height(10.dp))
+                //Buttons Row
+                Row() {
+                    Spacer(modifier = Modifier.width(10.dp))
+                    // Photo button
                     OutlinedIconButton(
                         onClick = { navigateToPhoto(checklistSummary.clientId) },
-                        modifier = Modifier.width(64.dp).height(52.dp).padding(end = 12.dp)
+                        modifier = Modifier.width(52.dp).height(52.dp),
+                        enabled = !isExportingPdf
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.add_a_photo_24px),
                             contentDescription = "Adicionar Foto",
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(48.dp).padding(4.dp)
+                            modifier = Modifier.size(28.dp)
                         )
+                    }
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    // Export PDF button
+                    OutlinedIconButton(
+                        onClick = { onExportPdf(checklistSummary.clientId) },
+                        modifier = Modifier.width(52.dp).height(52.dp),
+                        enabled = !isExportingPdf
+                    ) {
+                        if (isExportingPdf) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Filled.FileDownload,
+                                contentDescription = "Exportar PDF",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(28.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -349,5 +501,3 @@ fun ChecklistHomeScreenPreview() {
         navigateToPhoto = {}
     )
 }
-
-

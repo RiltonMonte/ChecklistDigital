@@ -30,6 +30,9 @@ object ChecklistViewModelProvider {
         initializer {
             PhotoViewModel(checklistApplication().container.checklistRepository)
         }
+        initializer {
+            PdfExportViewModel(checklistApplication().container.checklistRepository)
+        }
     }
 }
 
