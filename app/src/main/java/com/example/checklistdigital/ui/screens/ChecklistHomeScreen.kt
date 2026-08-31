@@ -66,7 +66,7 @@ fun ChecklistHomeScreen(
     pdfExportViewModel: PdfExportViewModel = viewModel(factory = ChecklistViewModelProvider.Factory)
 ) {
     val uiState by checklistHomeViewModel.uiState.collectAsState()
-    val pdfUiState = pdfExportViewModel.uiState
+    val pdfUiState = pdfExportViewModel.uiState.collectAsState().value
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var showExportDialog by remember { mutableStateOf(false) }
@@ -86,20 +86,26 @@ fun ChecklistHomeScreen(
             confirmButton = {
                 Button(
                     onClick = {
-                        // Share the PDF
-                        val file = File(pdfUiState.filePath)
-                        val uri = FileProvider.getUriForFile(
-                            context,
-                            "${context.packageName}.fileprovider",
-                            file
-                        )
-                        val intent = Intent(Intent.ACTION_SEND).apply {
-                            type = "application/pdf"
-                            putExtra(Intent.EXTRA_STREAM, uri)
-                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        try {
+                            // Share the PDF
+                            val file = File(pdfUiState.filePath!!)
+                            if (file.exists()) {
+                                val uri = FileProvider.getUriForFile(
+                                    context,
+                                    "${context.packageName}.fileprovider",
+                                    file
+                                )
+                                val intent = Intent(Intent.ACTION_SEND).apply {
+                                    type = "application/pdf"
+                                    putExtra(Intent.EXTRA_STREAM, uri)
+                                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                }
+                                context.startActivity(Intent.createChooser(intent, "Compartilhar PDF"))
+                                pdfExportViewModel.resetState()
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
                         }
-                        context.startActivity(Intent.createChooser(intent, "Compartilhar PDF"))
-                        pdfExportViewModel.resetState()
                     }
                 ) {
                     Text("Compartilhar")

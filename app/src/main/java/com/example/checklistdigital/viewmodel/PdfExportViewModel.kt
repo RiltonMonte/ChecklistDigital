@@ -8,6 +8,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.checklistdigital.data.ChecklistRepository
 import com.example.checklistdigital.utils.PdfExportUtils
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -22,8 +25,8 @@ class PdfExportViewModel(
     private val checklistRepository: ChecklistRepository
 ) : ViewModel() {
 
-    private val _uiState = mutableStateOf(PdfExportUiState())
-    val uiState: PdfExportUiState = _uiState.value
+    private val _uiState = MutableStateFlow(PdfExportUiState())
+    val uiState: StateFlow<PdfExportUiState> = _uiState.asStateFlow()
 
     fun exportChecklistToPdf(context: Context, clientId: Int) {
         viewModelScope.launch {

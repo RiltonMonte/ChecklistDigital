@@ -2,6 +2,7 @@ package com.example.checklistdigital.utils
 
 import android.content.Context
 import android.graphics.BitmapFactory
+import com.example.checklistdigital.R
 import com.example.checklistdigital.data.Address
 import com.example.checklistdigital.data.Client
 import com.example.checklistdigital.data.Photo
@@ -41,19 +42,66 @@ object PdfExportUtils {
         val pdfDoc = PdfDocument(writer)
         val document = Document(pdfDoc)
 
-        // Title
-        document.add(
-            Paragraph("RELATÓRIO DE CHECKLIST")
+        // Logo + Título
+        val titleTable = Table(UnitValue.createPercentArray(floatArrayOf(1f, 4f)))
+        titleTable.setWidth(UnitValue.createPercentValue(100f))
+
+        // Adiciona logo na primeira célula
+
+        // Carrega logo do drawable
+        val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.logo_apg)
+        val logoBytes = java.io.ByteArrayOutputStream().apply {
+            bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, this)
+        }.toByteArray()
+
+        val imageData: ImageData = ImageDataFactory.create(logoBytes)
+            val logo = Image(imageData)
+            logo.setAutoScale(true) // ajusta automaticamente
+            logo.setHeight(40f)     // altura aproximada do texto
+            titleTable.addCell(logo.setTextAlignment(TextAlignment.LEFT))
+
+
+        // Adiciona título e informações da empresa na segunda célula
+        val titleCell = com.itextpdf.layout.element.Cell()
+        titleCell.add(
+            Paragraph("Arraial Porto Guincho")
                 .setFontSize(20f)
                 .setBold()
                 .setTextAlignment(TextAlignment.CENTER)
         )
+        titleCell.add(
+            Paragraph("Telefones: (73)9 9902-1212 / (73)9 8873-0892")
+                .setFontSize(12f)
+                .setItalic()
+                .setTextAlignment(TextAlignment.CENTER)
+        )
+        titleCell.add(
+            Paragraph("Email: arraialportoguincho24h@hotmail.com")
+                .setFontSize(12f)
+                .setItalic()
+                .setTextAlignment(TextAlignment.CENTER)
+        )
+        titleCell.add(
+            Paragraph("CNPJ: 17.136.660/0001-05")
+                .setFontSize(12f)
+                .setItalic()
+                .setTextAlignment(TextAlignment.CENTER)
+        )
+        titleCell.add(
+            Paragraph("Rua 26, Quadra 53, Lote 06, Porto Alegre 2, Porto Seguro - BA")
+                .setFontSize(14f)
+                .setItalic()
+                .setTextAlignment(TextAlignment.CENTER)
+        )
 
+        titleTable.addCell(titleCell)
+
+        document.add(titleTable)
         document.add(Paragraph(""))
 
         // Client Information
         document.add(
-            Paragraph("INFORMAÇÕES DO CLIENTE")
+            Paragraph("CLIENTE")
                 .setFontSize(14f)
                 .setBold()
         )
@@ -72,7 +120,7 @@ object PdfExportUtils {
 
         // Vehicle Information
         document.add(
-            Paragraph("INFORMAÇÕES DO VEÍCULO")
+            Paragraph("VEÍCULO")
                 .setFontSize(14f)
                 .setBold()
         )
@@ -89,13 +137,8 @@ object PdfExportUtils {
         document.add(Paragraph(""))
 
         // Address Information
-        document.add(
-            Paragraph("ENDEREÇOS")
-                .setFontSize(14f)
-                .setBold()
-        )
 
-        document.add(Paragraph("Origem:").setBold())
+        document.add(Paragraph("ORIGEM:").setBold())
         val originTable = Table(UnitValue.createPercentArray(2))
         originTable.setWidth(UnitValue.createPercentValue(100f))
         addTableCell(originTable, "Rua/Avenida:", address.originStreet)
@@ -106,7 +149,7 @@ object PdfExportUtils {
 
         document.add(Paragraph(""))
 
-        document.add(Paragraph("Destino:").setBold())
+        document.add(Paragraph("DESTINO:").setBold())
         val destinyTable = Table(UnitValue.createPercentArray(2))
         destinyTable.setWidth(UnitValue.createPercentValue(100f))
         addTableCell(destinyTable, "Rua/Avenida:", address.destinyStreet)
@@ -119,42 +162,29 @@ object PdfExportUtils {
 
         // Vehicle Status 1
         document.add(
-            Paragraph("STATUS DOS ITENS - PARTE 1")
+            Paragraph("STATUS")
                 .setFontSize(14f)
                 .setBold()
         )
 
-        val status1Table = Table(UnitValue.createPercentArray(2))
+        val status1Table = Table(UnitValue.createPercentArray(floatArrayOf(2f, 1f, 2f, 1f)))
         status1Table.setWidth(UnitValue.createPercentValue(100f))
 
-        addStatusTableCell(status1Table, "Documentos:", vehicleStatus1.documentos)
-        addStatusTableCell(status1Table, "Extintor:", vehicleStatus1.extintor)
-        addStatusTableCell(status1Table, "Livreto:", vehicleStatus1.livreto)
-        addStatusTableCell(status1Table, "Tapetes:", vehicleStatus1.tapetes)
-        addStatusTableCell(status1Table, "Rádio:", vehicleStatus1.radio)
-        addStatusTableCell(status1Table, "Estepe:", vehicleStatus1.estepe)
-        addStatusTableCell(status1Table, "CD Player:", vehicleStatus1.cdPlayer)
-        addStatusTableCell(status1Table, "Acendedor de Cigarro:", vehicleStatus1.acededorDeCigarro)
-        addStatusTableCell(status1Table, "DVD Player:", vehicleStatus1.dvdPlayer)
-        addStatusTableCell(status1Table, "Macaco:", vehicleStatus1.macaco)
-        addStatusTableCell(status1Table, "Módulo/Amplificador:", vehicleStatus1.moduloAmplificador)
-        addStatusTableCell(status1Table, "Chave de Roda:", vehicleStatus1.chaveDeRoda)
-        addStatusTableCell(status1Table, "Frente CD:", vehicleStatus1.frenteCD)
-        addStatusTableCell(status1Table, "Triângulo:", vehicleStatus1.triangulo)
-        addStatusTableCell(status1Table, "Antena:", vehicleStatus1.antena)
-        addStatusTableCell(status1Table, "Bateria:", vehicleStatus1.bateria)
-        addStatusTableCell(status1Table, "Roda Liga Leve:", vehicleStatus1.rodaLigaLeve)
-        addStatusTableCell(status1Table, "Pintura Suja Diferente:", vehicleStatus1.pintSujaDif)
+        addStatusTableCell(status1Table, "Documentos:", vehicleStatus1.documentos, "Extintor:", vehicleStatus1.extintor)
+        addStatusTableCell(status1Table, "Livreto:", vehicleStatus1.livreto, "Tapetes:", vehicleStatus1.tapetes)
+        addStatusTableCell(status1Table, "Rádio:", vehicleStatus1.radio, "Estepe:", vehicleStatus1.estepe)
+        addStatusTableCell(status1Table, "CD Player:", vehicleStatus1.cdPlayer, "Acendedor de Cigarro:", vehicleStatus1.acededorDeCigarro)
+        addStatusTableCell(status1Table, "DVD Player:", vehicleStatus1.dvdPlayer, "Macaco:", vehicleStatus1.macaco)
+        addStatusTableCell(status1Table, "Módulo/Amplificador:", vehicleStatus1.moduloAmplificador, "Chave de Roda:", vehicleStatus1.chaveDeRoda)
+        addStatusTableCell(status1Table, "Frente CD:", vehicleStatus1.frenteCD, "Triângulo:", vehicleStatus1.triangulo)
+        addStatusTableCell(status1Table, "Antena:", vehicleStatus1.antena, "Bateria:", vehicleStatus1.bateria)
+        addStatusTableCell(status1Table, "Roda Liga Leve:", vehicleStatus1.rodaLigaLeve, "Pintura Suja Dif. Vistoria:", vehicleStatus1.pintSujaDif)
+
 
         document.add(status1Table)
         document.add(Paragraph(""))
 
         // Vehicle Status 2
-        document.add(
-            Paragraph("STATUS DOS ITENS - PARTE 2")
-                .setFontSize(14f)
-                .setBold()
-        )
 
         val status2Table = Table(UnitValue.createPercentArray(2))
         status2Table.setWidth(UnitValue.createPercentValue(100f))
@@ -235,8 +265,18 @@ object PdfExportUtils {
         table.addCell(Paragraph(value))
     }
 
-    private fun addStatusTableCell(table: Table, label: String, status: Boolean) {
-        table.addCell(Paragraph(label).setBold())
-        table.addCell(Paragraph(if (status) "✓ Presente" else "✗ Ausente"))
+    private fun addStatusTableCell(table: Table, label1: String, status1: Boolean, label2: String, status2: Boolean) {
+
+        table.addCell(Paragraph(label1).setBold())
+        table.addCell(Paragraph(if (status1) "X" else " ")
+            .setFontSize(14f)
+            .setTextAlignment(TextAlignment.CENTER)
+        )
+
+        table.addCell(Paragraph(label2).setBold())
+        table.addCell(Paragraph(if (status2) "X" else " ")
+            .setFontSize(14f)
+            .setTextAlignment(TextAlignment.CENTER)
+        )
     }
 }
