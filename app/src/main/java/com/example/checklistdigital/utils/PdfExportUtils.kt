@@ -2,6 +2,8 @@ package com.example.checklistdigital.utils
 
 import android.content.Context
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import androidx.exifinterface.media.ExifInterface
 import com.example.checklistdigital.R
 import com.example.checklistdigital.data.Address
 import com.example.checklistdigital.data.Client
@@ -55,10 +57,10 @@ object PdfExportUtils {
         }.toByteArray()
 
         val imageData: ImageData = ImageDataFactory.create(logoBytes)
-            val logo = Image(imageData)
-            logo.setAutoScale(true) // ajusta automaticamente
-            logo.setHeight(40f)     // altura aproximada do texto
-            titleTable.addCell(logo.setTextAlignment(TextAlignment.LEFT))
+        val logo = Image(imageData)
+        logo.setAutoScale(true) // ajusta automaticamente
+        logo.setHeight(40f)     // altura aproximada do texto
+        titleTable.addCell(logo.setTextAlignment(TextAlignment.LEFT))
 
 
         // Adiciona título e informações da empresa na segunda célula
@@ -101,84 +103,74 @@ object PdfExportUtils {
 
         // Client Information
         document.add(
-            Paragraph("CLIENTE")
-                .setFontSize(14f)
-                .setBold()
+            Paragraph("CLIENTE").setBold()
         )
 
-        val clientTable = Table(UnitValue.createPercentArray(2))
+        val clientTable = Table(UnitValue.createPercentArray(floatArrayOf(1f, 2f, 1f, 2f)))
         clientTable.setWidth(UnitValue.createPercentValue(100f))
 
-        addTableCell(clientTable, "Nome:", client.clientName)
-        addTableCell(clientTable, "Seguradora:", client.insurance)
-        addTableCell(clientTable, "Data do Serviço:", client.serviceDate)
-        addTableCell(clientTable, "Sinistro:", client.accident)
-        addTableCell(clientTable, "Telefone:", client.phone)
+        addTableDoubleCell(clientTable, "Nome", client.clientName, "Seguradora", client.insurance)
+        addTableDoubleCell(clientTable, "Data", client.serviceDate, "Sinistro", client.accident)
+        addTableDoubleCell(clientTable, "Telefone", client.phone, "", "")
 
         document.add(clientTable)
         document.add(Paragraph(""))
 
         // Vehicle Information
         document.add(
-            Paragraph("VEÍCULO")
-                .setFontSize(14f)
-                .setBold()
+            Paragraph("VEÍCULO").setBold()
         )
 
-        val vehicleTable = Table(UnitValue.createPercentArray(2))
+        val vehicleTable = Table(UnitValue.createPercentArray(floatArrayOf(1f, 2f, 1f, 2f)))
         vehicleTable.setWidth(UnitValue.createPercentValue(100f))
 
-        addTableCell(vehicleTable, "Modelo:", vehicleInfo.vehicle)
-        addTableCell(vehicleTable, "Placa:", vehicleInfo.plate)
-        addTableCell(vehicleTable, "Cor:", vehicleInfo.color)
-        addTableCell(vehicleTable, "Ano:", vehicleInfo.year)
+        addTableDoubleCell(vehicleTable, "Modelo", vehicleInfo.vehicle,  "Placa", vehicleInfo.plate)
+        addTableDoubleCell(vehicleTable, "Cor", vehicleInfo.color, "Ano", vehicleInfo.year)
 
         document.add(vehicleTable)
         document.add(Paragraph(""))
 
         // Address Information
 
-        document.add(Paragraph("ORIGEM:").setBold())
-        val originTable = Table(UnitValue.createPercentArray(2))
+        document.add(
+            Paragraph("ORIGEM").setBold()
+        )
+        val originTable = Table(UnitValue.createPercentArray(floatArrayOf(1f, 2f, 1f, 2f)))
         originTable.setWidth(UnitValue.createPercentValue(100f))
-        addTableCell(originTable, "Rua/Avenida:", address.originStreet)
-        addTableCell(originTable, "Número:", address.originNumber)
-        addTableCell(originTable, "Bairro:", address.originDistrict)
-        addTableCell(originTable, "Cidade:", address.originCity)
+        addTableDoubleCell(originTable, "Rua/Avenida", address.originStreet, "Número", address.originNumber)
+        addTableDoubleCell(originTable, "Bairro", address.originDistrict, "Cidade", address.originCity)
         document.add(originTable)
 
         document.add(Paragraph(""))
 
-        document.add(Paragraph("DESTINO:").setBold())
-        val destinyTable = Table(UnitValue.createPercentArray(2))
+        document.add(
+            Paragraph("DESTINO").setBold()
+        )
+        val destinyTable = Table(UnitValue.createPercentArray(floatArrayOf(1f, 2f, 1f, 2f)))
         destinyTable.setWidth(UnitValue.createPercentValue(100f))
-        addTableCell(destinyTable, "Rua/Avenida:", address.destinyStreet)
-        addTableCell(destinyTable, "Número:", address.destinyNumber)
-        addTableCell(destinyTable, "Bairro:", address.destinyDistrict)
-        addTableCell(destinyTable, "Cidade:", address.destinyCity)
+        addTableDoubleCell(destinyTable, "Rua/Avenida", address.destinyStreet, "Número", address.destinyNumber)
+        addTableDoubleCell(destinyTable, "Bairro", address.destinyDistrict, "Cidade", address.destinyCity)
         document.add(destinyTable)
 
         document.add(Paragraph(""))
 
         // Vehicle Status 1
         document.add(
-            Paragraph("STATUS")
-                .setFontSize(14f)
-                .setBold()
+            Paragraph("STATUS").setBold()
         )
 
         val status1Table = Table(UnitValue.createPercentArray(floatArrayOf(2f, 1f, 2f, 1f)))
         status1Table.setWidth(UnitValue.createPercentValue(100f))
 
-        addStatusTableCell(status1Table, "Documentos:", vehicleStatus1.documentos, "Extintor:", vehicleStatus1.extintor)
-        addStatusTableCell(status1Table, "Livreto:", vehicleStatus1.livreto, "Tapetes:", vehicleStatus1.tapetes)
-        addStatusTableCell(status1Table, "Rádio:", vehicleStatus1.radio, "Estepe:", vehicleStatus1.estepe)
-        addStatusTableCell(status1Table, "CD Player:", vehicleStatus1.cdPlayer, "Acendedor de Cigarro:", vehicleStatus1.acededorDeCigarro)
-        addStatusTableCell(status1Table, "DVD Player:", vehicleStatus1.dvdPlayer, "Macaco:", vehicleStatus1.macaco)
-        addStatusTableCell(status1Table, "Módulo/Amplificador:", vehicleStatus1.moduloAmplificador, "Chave de Roda:", vehicleStatus1.chaveDeRoda)
-        addStatusTableCell(status1Table, "Frente CD:", vehicleStatus1.frenteCD, "Triângulo:", vehicleStatus1.triangulo)
-        addStatusTableCell(status1Table, "Antena:", vehicleStatus1.antena, "Bateria:", vehicleStatus1.bateria)
-        addStatusTableCell(status1Table, "Roda Liga Leve:", vehicleStatus1.rodaLigaLeve, "Pintura Suja Dif. Vistoria:", vehicleStatus1.pintSujaDif)
+        addStatusTableCell(status1Table, "Documentos", vehicleStatus1.documentos, "Extintor", vehicleStatus1.extintor)
+        addStatusTableCell(status1Table, "Livreto", vehicleStatus1.livreto, "Tapetes", vehicleStatus1.tapetes)
+        addStatusTableCell(status1Table, "Rádio", vehicleStatus1.radio, "Estepe", vehicleStatus1.estepe)
+        addStatusTableCell(status1Table, "CD Player", vehicleStatus1.cdPlayer, "Acendedor de Cigarro", vehicleStatus1.acededorDeCigarro)
+        addStatusTableCell(status1Table, "DVD Player", vehicleStatus1.dvdPlayer, "Macaco", vehicleStatus1.macaco)
+        addStatusTableCell(status1Table, "Módulo/Amplificador", vehicleStatus1.moduloAmplificador, "Chave de Roda", vehicleStatus1.chaveDeRoda)
+        addStatusTableCell(status1Table, "Frente CD", vehicleStatus1.frenteCD, "Triângulo", vehicleStatus1.triangulo)
+        addStatusTableCell(status1Table, "Antena", vehicleStatus1.antena, "Bateria", vehicleStatus1.bateria)
+        addStatusTableCell(status1Table, "Roda Liga Leve", vehicleStatus1.rodaLigaLeve, "Pintura Suja Dif. Vistoria", vehicleStatus1.pintSujaDif)
 
 
         document.add(status1Table)
@@ -186,7 +178,7 @@ object PdfExportUtils {
 
         // Vehicle Status 2
 
-        val status2Table = Table(UnitValue.createPercentArray(2))
+        val status2Table = Table(UnitValue.createPercentArray(floatArrayOf(2f, 1f, 2f, 1f)))
         status2Table.setWidth(UnitValue.createPercentValue(100f))
 
         val pneusDianteiros = when (vehicleStatus2.pneusDianteiros) {
@@ -205,10 +197,8 @@ object PdfExportUtils {
             else -> "Ruins"
         }
 
-        addTableCell(status2Table, "Pneus Dianteiros:", pneusDianteiros)
-        addTableCell(status2Table, "Pneus Traseiros:", pneusTraseiros)
-        addTableCell(status2Table, "Estepe:", estepe)
-        addTableCell(status2Table, "Nível de Combustível:", "${(vehicleStatus2.nivelCombustivel * 100).toInt()}%")
+        addTableDoubleCell(status2Table, "Pneus Dianteiros", pneusDianteiros, "Pneus Traseiros", pneusTraseiros)
+        addTableDoubleCell(status2Table, "Estepe", estepe, "Nível de Combustível", "${(vehicleStatus2.nivelCombustivel * 100).toInt()}%")
 
         document.add(status2Table)
         document.add(Paragraph(""))
@@ -236,7 +226,14 @@ object PdfExportUtils {
                 try {
                     val photoFile = File(photo.photoPath)
                     if (photoFile.exists()) {
-                        val imageData: ImageData = ImageDataFactory.create(photo.photoPath)
+                        // Load and rotate image based on EXIF orientation
+                        val rotatedBitmap = rotateImageIfNeeded(photo.photoPath)
+
+                        val rotatedImageBytes = java.io.ByteArrayOutputStream().apply {
+                            rotatedBitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 95, this)
+                        }.toByteArray()
+
+                        val imageData: ImageData = ImageDataFactory.create(rotatedImageBytes)
                         val image = Image(imageData)
                         image.setWidth(UnitValue.createPercentValue(100f))
                         document.add(image)
@@ -260,9 +257,58 @@ object PdfExportUtils {
         return file.absolutePath
     }
 
+    /**
+     * Loads an image and rotates it based on EXIF orientation data
+     */
+    private fun rotateImageIfNeeded(imagePath: String): android.graphics.Bitmap {
+        val bitmap = BitmapFactory.decodeFile(imagePath)
+
+        return try {
+            val exif = ExifInterface(imagePath)
+            val orientation = exif.getAttributeInt(
+                ExifInterface.TAG_ORIENTATION,
+                ExifInterface.ORIENTATION_NORMAL
+            )
+
+            val rotationDegrees = when (orientation) {
+                ExifInterface.ORIENTATION_ROTATE_90 -> 90
+                ExifInterface.ORIENTATION_ROTATE_180 -> 180
+                ExifInterface.ORIENTATION_ROTATE_270 -> 270
+                else -> 0
+            }
+
+            if (rotationDegrees == 0) {
+                bitmap
+            } else {
+                val matrix = Matrix()
+                matrix.postRotate(rotationDegrees.toFloat())
+                android.graphics.Bitmap.createBitmap(
+                    bitmap,
+                    0,
+                    0,
+                    bitmap.width,
+                    bitmap.height,
+                    matrix,
+                    true
+                )
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            bitmap
+        }
+    }
+
     private fun addTableCell(table: Table, label: String, value: String) {
         table.addCell(Paragraph(label).setBold())
         table.addCell(Paragraph(value))
+    }
+
+    private fun addTableDoubleCell(table: Table, label1: String, value1: String, label2: String, value2: String) {
+        table.addCell(Paragraph(label1).setBold())
+        table.addCell(Paragraph(value1))
+
+        table.addCell(Paragraph(label2).setBold())
+        table.addCell(Paragraph(value2))
     }
 
     private fun addStatusTableCell(table: Table, label1: String, status1: Boolean, label2: String, status2: Boolean) {

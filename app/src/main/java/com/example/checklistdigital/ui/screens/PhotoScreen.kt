@@ -1,5 +1,6 @@
 package com.example.checklistdigital.ui.screens
 
+import android.Manifest
 import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -19,6 +20,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -49,6 +51,7 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.UUID
 
 @Composable
 fun PhotoScreen(
@@ -62,6 +65,7 @@ fun PhotoScreen(
     var currentPhotoUri by remember { mutableStateOf<Uri?>(null) }
     val uiState = photoViewModel.photoUiState
     val photoUris = photoViewModel.photoUris
+    var showPermissionDialog by remember { mutableStateOf(false) }
 
     // Load existing photos when screen opens
     LaunchedEffect(clientId) {
@@ -79,6 +83,40 @@ fun PhotoScreen(
                 photoViewModel.addPhotoUri(uri)
             }
         }
+    }
+
+    // Launcher for requesting camera permission
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            // Permission granted, open camera
+            try {
+                val photoUri = createPhotoUri(context)
+                currentPhotoUri = photoUri
+                takePictureLauncher.launch(photoUri)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        } else {
+            // Permission denied, show dialog
+            showPermissionDialog = true
+        }
+    }
+
+    if (showPermissionDialog) {
+        AlertDialog(
+            onDismissRequest = { showPermissionDialog = false },
+            title = { Text("Permissão de Câmera") },
+            text = { Text("A permissão de câmera é necessária para capturar fotos. Por favor, conceda a permissão nas configurações do aplicativo.") },
+            confirmButton = {
+                Button(
+                    onClick = { showPermissionDialog = false }
+                ) {
+                    Text("OK")
+                }
+            }
+        )
     }
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -187,13 +225,8 @@ fun PhotoScreen(
                 ) {
                     Button(
                         onClick = {
-                            try {
-                                val photoUri = createPhotoUri(context)
-                                currentPhotoUri = photoUri
-                                takePictureLauncher.launch(photoUri)
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                            }
+                            // Request camera permission
+                            permissionLauncher.launch(Manifest.permission.CAMERA)
                         },
                         modifier = Modifier.padding(horizontal = 8.dp)
                     ) {
@@ -221,8 +254,8 @@ fun PhotoScreen(
                     if (clientId > 0) {
                         coroutineScope.launch {
                             // Save new photos from URIs
-                            val photoPaths = photoUris.map { uri ->
-                                savePhotoToInternalStorage(context, uri, clientId)
+                            val photoPaths = photoUris.mapIndexed { index, uri ->
+                                savePhotoToInternalStorage(context, uri, clientId, index)
                             }
 
                             val success = photoViewModel.savePhotos(clientId, photoPaths)
@@ -314,8 +347,9 @@ fun createPhotoUri(context: Context): Uri {
 
 /**
  * Saves photo from cache to internal storage with clientId in the path
+ * Uses UUID to ensure unique filenames for multiple photos taken in quick succession
  */
-fun savePhotoToInternalStorage(context: Context, photoUri: Uri, clientId: Int): String {
+fun savePhotoToInternalStorage(context: Context, photoUri: Uri, clientId: Int, index: Int = 0): String {
     val photoDir = File(context.filesDir, "photos/$clientId").apply {
         if (!exists()) {
             mkdirs()
@@ -323,7 +357,8 @@ fun savePhotoToInternalStorage(context: Context, photoUri: Uri, clientId: Int): 
     }
 
     val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-    val photoFile = File(photoDir, "photo_${timeStamp}.jpg")
+    val uniqueId = UUID.randomUUID().toString().take(8)
+    val photoFile = File(photoDir, "photo_${timeStamp}_${uniqueId}.jpg")
 
     context.contentResolver.openInputStream(photoUri)?.use { input ->
         photoFile.outputStream().use { output ->
