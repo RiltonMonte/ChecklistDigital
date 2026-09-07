@@ -2,7 +2,9 @@ package com.example.checklistdigital.ui.screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Card
@@ -70,7 +72,11 @@ fun ChecklistScreen(
         }
     }
 
-    LazyColumn(modifier = modifier) {
+    LazyColumn(
+        modifier = modifier
+            .fillMaxWidth(),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 120.dp)
+    ) {
         item {
             ClientScreen(
                 uiState = clientViewModel.clientUiState,
@@ -112,7 +118,7 @@ fun ChecklistScreen(
                     vehicleInfoViewModel.validateInput() &&
                     addressViewModel.validateInput() &&
                     vehicleStatus2ViewModel.validateInput()
-                    )true else false,
+                )true else false,
                 onNextClick = {
                     coroutineScope.launch {
                         val clientId = clientViewModel.saveClient()
@@ -126,8 +132,11 @@ fun ChecklistScreen(
                     }
                 },
                 modifier = Modifier
-                    .padding(bottom = 16.dp, start = 28.dp, end = 28.dp)
+                    .padding(bottom = 32.dp, start = 28.dp, end = 28.dp)
             )
+
+            // Extra spacer to ensure keyboard doesn't cover content
+            Spacer(modifier = Modifier.height(80.dp))
         }
     }
 }
@@ -410,7 +419,7 @@ fun VehicleStatusScreen2(
                 modifier = Modifier
                     .align(alignment = Alignment.CenterVertically)
                     .weight(.30f)
-                )
+            )
             Card(
                 modifier = Modifier
                     .padding(start = 8.dp, end = 8.dp)

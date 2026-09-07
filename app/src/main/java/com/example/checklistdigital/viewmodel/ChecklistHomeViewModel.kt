@@ -15,7 +15,8 @@ data class ChecklistSummary(
     val serviceDate: String,
     val vehicle: String,
     val plate: String,
-    val phone: String
+    val phone: String,
+    val createdAt: Long = System.currentTimeMillis()
 )
 
 data class ChecklistHomeUiState(
@@ -61,7 +62,8 @@ class ChecklistHomeViewModel(
                                         serviceDate = client.serviceDate,
                                         vehicle = vehicleInfo!!.vehicle,
                                         plate = vehicleInfo!!.plate,
-                                        phone = client.phone
+                                        phone = client.phone,
+                                        createdAt = client.id.toLong() // Use clientId as proxy for creation time, sorted descending
                                     )
                                 )
                             }
@@ -71,7 +73,10 @@ class ChecklistHomeViewModel(
                         }
                     }
 
-                    _uiState.value = _uiState.value.copy(checklists = summaries, isLoading = false)
+                    // Sort checklists from latest (highest ID) to oldest (lowest ID)
+                    val sortedSummaries = summaries.sortedByDescending { it.clientId }
+
+                    _uiState.value = _uiState.value.copy(checklists = sortedSummaries, isLoading = false)
                 }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
