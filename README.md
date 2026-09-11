@@ -85,4 +85,4 @@ Aplicativo Android desenvolvido em **Kotlin** com **Jetpack Compose**, que permi
 
 1. Clone o repositório:
    ```bash
-   git clone https://github.com/seu-usuario/checklist-digital.git
+   git clone https://github.com/RiltonMonte/ChecklistDigital
