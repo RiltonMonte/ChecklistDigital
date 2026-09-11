@@ -79,10 +79,3 @@ Aplicativo Android desenvolvido em **Kotlin** com **Jetpack Compose**, que permi
 - **LazyVerticalGrid** para exibição das fotos.
 - **AlertDialog** para permissões e mensagens de erro.
 
----
-
-## 📦 Instalação
-
-1. Clone o repositório:
-   ```bash
-   git clone https://github.com/RiltonMonte/ChecklistDigital
