@@ -1,7 +1,6 @@
 package com.example.checklistdigital.ui.screens
 
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -58,26 +57,30 @@ import java.io.File
 
 @Composable
 fun ChecklistHomeScreen(
-    navigateToItemEntry: () -> Unit,
-    navigateToItemUpdate: (Int) -> Unit,
-    navigateToPhoto: (Int) -> Unit,
+    navigateToItemEntry: () -> Unit, // Navega para criação de novo checklist
+    navigateToItemUpdate: (Int) -> Unit, // Navega para edição de checklist existente
+    navigateToPhoto: (Int) -> Unit, // Navega para tela de fotos vinculadas ao checklist
     modifier: Modifier = Modifier,
     checklistHomeViewModel: ChecklistHomeViewModel = viewModel(factory = ChecklistViewModelProvider.Factory),
     pdfExportViewModel: PdfExportViewModel = viewModel(factory = ChecklistViewModelProvider.Factory)
 ) {
+    // Estado da tela principal de checklists
     val uiState by checklistHomeViewModel.uiState.collectAsState()
+    // Estado da exportação de PDF
     val pdfUiState = pdfExportViewModel.uiState.collectAsState().value
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var showExportDialog by remember { mutableStateOf(false) }
     var selectedClientForExport by remember { mutableStateOf<Int?>(null) }
 
+    // Resetar seleção de checklist ao abrir a tela
     androidx.compose.runtime.LaunchedEffect(Unit) {
         checklistHomeViewModel.deselectChecklist()
     }
 
-    //Exportar PDF
-    // Success dialog
+    // -----------------------------
+    // Exportação de PDF - Diálogo de sucesso
+    // -----------------------------
     if (pdfUiState.success && pdfUiState.filePath != null) {
         AlertDialog(
             onDismissRequest = { pdfExportViewModel.resetState() },
@@ -87,7 +90,7 @@ fun ChecklistHomeScreen(
                 Button(
                     onClick = {
                         try {
-                            // Share the PDF
+                            // Compartilhar PDF via Intent
                             val file = File(pdfUiState.filePath!!)
                             if (file.exists()) {
                                 val uri = FileProvider.getUriForFile(
@@ -121,7 +124,9 @@ fun ChecklistHomeScreen(
         )
     }
 
-    // Error dialog
+    // -----------------------------
+    // Exportação de PDF - Diálogo de erro
+    // -----------------------------
     if (pdfUiState.error != null) {
         AlertDialog(
             onDismissRequest = { pdfExportViewModel.resetState() },
@@ -137,13 +142,16 @@ fun ChecklistHomeScreen(
         )
     }
 
+    // -----------------------------
+    // Layout principal da tela
+    // -----------------------------
     Box(
         modifier = modifier.fillMaxSize()
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Header
+            // Cabeçalho
             Text(
                 text = "Meus Checklists",
                 style = MaterialTheme.typography.headlineMedium,
@@ -151,8 +159,9 @@ fun ChecklistHomeScreen(
                 modifier = Modifier.padding(16.dp)
             )
 
-            // Content
+            // Conteúdo da tela baseado no estado
             when {
+                // Estado de carregamento
                 uiState.isLoading -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
@@ -161,7 +170,7 @@ fun ChecklistHomeScreen(
                         CircularProgressIndicator()
                     }
                 }
-
+                // Estado de erro
                 uiState.error != null -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
@@ -173,7 +182,7 @@ fun ChecklistHomeScreen(
                         )
                     }
                 }
-
+                // Estado sem checklists
                 uiState.checklists.isEmpty() -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
@@ -197,11 +206,11 @@ fun ChecklistHomeScreen(
                         }
                     }
                 }
-
                 else ->{
                     Column(
                         modifier = Modifier.fillMaxSize()
                     ) {
+                        // Lista de checklists existentes
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -218,6 +227,7 @@ fun ChecklistHomeScreen(
                                     checklistSummary = checklistSummary,
                                     isSelected = uiState.selectedClientId == checklistSummary.clientId,
                                     onCardClick = {
+                                        // Seleciona ou desseleciona checklist
                                         if (uiState.selectedClientId == checklistSummary.clientId) {
                                             checklistHomeViewModel.deselectChecklist()
                                         } else {
@@ -235,7 +245,7 @@ fun ChecklistHomeScreen(
                                 )
                             }
                         }
-
+                        // Ações disponíveis quando um checklist está selecionado
                         if (uiState.selectedClientId != null) {
                             Column(
                                 modifier = Modifier
@@ -244,6 +254,7 @@ fun ChecklistHomeScreen(
                                 verticalArrangement = Arrangement.spacedBy(8.dp),
                                 horizontalAlignment = Alignment.End
                             ) {
+                                // Botão para editar checklist
                                 ExtendedFloatingActionButton(
                                     onClick = {
                                         navigateToItemUpdate(uiState.selectedClientId!!)
@@ -253,7 +264,7 @@ fun ChecklistHomeScreen(
                                     icon = { Icon(Icons.Filled.Edit, contentDescription = "Editar") },
                                     text = { Text("Editar") }
                                 )
-
+                                // Botão para deletar checklist
                                 ExtendedFloatingActionButton(
                                     onClick = {
                                         checklistHomeViewModel.deleteChecklist(uiState.selectedClientId!!)
@@ -263,7 +274,7 @@ fun ChecklistHomeScreen(
                                     text = { Text("Deletar") },
                                     containerColor = MaterialTheme.colorScheme.error
                                 )
-
+                                // Botão para exportar checklist em PDF
                                 ExtendedFloatingActionButton(
                                     onClick = {
                                         selectedClientForExport = uiState.selectedClientId
@@ -289,7 +300,7 @@ fun ChecklistHomeScreen(
                 }
             }
         }
-
+        // Botão flutuante para criar novo checklist
         ExtendedFloatingActionButton(
             onClick = navigateToItemEntry,
             icon = { Icon(Icons.Filled.Add, contentDescription = "Novo Checklist") },
@@ -300,7 +311,9 @@ fun ChecklistHomeScreen(
         )
     }
 
-    // Export confirmation dialog
+    // -----------------------------
+    // Diálogo de confirmação de exportação
+    // -----------------------------
     if (showExportDialog && selectedClientForExport != null) {
         AlertDialog(
             onDismissRequest = { showExportDialog = false },
@@ -329,7 +342,19 @@ fun ChecklistHomeScreen(
     }
 }
 
-
+/**
+ * Componente que exibe um cartão com resumo de um checklist.
+ * Mostra informações principais como seguradora, data, veículo e placa,
+ * além de botões de ação para adicionar fotos e exportar em PDF.
+ *
+ * @param modifier Permite aplicar modificadores de layout.
+ * @param checklistSummary Dados resumidos do checklist (seguradora, data, veículo, etc.).
+ * @param isSelected Indica se o cartão está selecionado (aplica destaque na borda).
+ * @param onCardClick Callback chamado ao clicar no cartão (selecionar/deselecionar).
+ * @param navigateToPhoto Callback para navegar até a tela de fotos do checklist.
+ * @param onExportPdf Callback para iniciar exportação do checklist em PDF.
+ * @param isExportingPdf Indica se a exportação está em andamento (desabilita botões e mostra progresso).
+ */
 @Composable
 fun ChecklistCard(
     modifier: Modifier = Modifier,
@@ -360,7 +385,9 @@ fun ChecklistCard(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Data e Seguradora
+            // -----------------------------
+            // Informações principais: Seguradora e Data
+            // -----------------------------
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -394,7 +421,9 @@ fun ChecklistCard(
                 }
             }
 
-            // Veiculo e Placa
+            // -----------------------------
+            // Informações do veículo: Modelo e Placa
+            // -----------------------------
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -431,10 +460,12 @@ fun ChecklistCard(
                         }
                     }
                 }
-                //Buttons Row
+                // -----------------------------
+                // Botões de ação: Fotos e Exportar PDF
+                // -----------------------------
                 Row() {
                     Spacer(modifier = Modifier.width(10.dp))
-                    // Photo button
+                    // Botão para adicionar foto
                     OutlinedIconButton(
                         onClick = { navigateToPhoto(checklistSummary.clientId) },
                         modifier = Modifier.width(52.dp).height(52.dp),
@@ -447,10 +478,8 @@ fun ChecklistCard(
                             modifier = Modifier.size(28.dp)
                         )
                     }
-
                     Spacer(modifier = Modifier.width(8.dp))
-
-                    // Export PDF button
+                    // Botão para exportar checklist em PDF
                     OutlinedIconButton(
                         onClick = { onExportPdf(checklistSummary.clientId) },
                         modifier = Modifier.width(52.dp).height(52.dp),
@@ -476,6 +505,9 @@ fun ChecklistCard(
     }
 }
 
+/**
+ * Preview do componente ChecklistCard com dados fictícios.
+ */
 @Composable
 @Preview(
     showBackground = true
@@ -495,6 +527,9 @@ fun ChecklistCardPreview() {
     )
 }
 
+/**
+ * Preview da tela ChecklistHomeScreen com navegação simulada.
+ */
 @Composable
 @Preview(
     showBackground = true,

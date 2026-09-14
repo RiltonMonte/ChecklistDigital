@@ -17,28 +17,40 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.checklistdigital.ui.navigation.ChecklistNavGraph
 import com.example.checklistdigital.ui.theme.ChecklistDigitalTheme
 
+/**
+ * Activity principal da aplicação.
+ * Responsável por configurar o tema, a barra superior e o grafo de navegação.
+ */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Habilita layout edge-to-edge (conteúdo ocupando toda a tela)
         enableEdgeToEdge()
         setContent {
+            // Aplica o tema da aplicação
             ChecklistDigitalTheme {
                 Scaffold(
+                    // Barra superior personalizada
                     topBar = {
                         ChecklistTopAppBar()
                     }
                 ){contentPadding ->
+                    // Grafo de navegação principal da aplicação
                     ChecklistNavGraph(modifier = Modifier.padding(contentPadding))
                 }
 
             }
         }
     }
+
+    /**
+     * Barra superior personalizada da aplicação.
+     * Exibe o logo e o nome do app centralizados.
+     */
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun ChecklistTopAppBar(modifier: Modifier = Modifier){
@@ -47,6 +59,7 @@ class MainActivity : ComponentActivity() {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ){
+                    // Logo da empresa
                     Image(
                         modifier = Modifier
                             .size(64.dp)
@@ -54,8 +67,9 @@ class MainActivity : ComponentActivity() {
                         painter = painterResource(R.drawable.logo_apg),
                         contentDescription = null
                     )
+                    // Nome da Empresa
                     Text(
-                        text = stringResource(R.string.app_name),
+                        text = "Arraial Porto Guincho",
                         style = MaterialTheme.typography.titleLarge
                     )
                 }
@@ -65,5 +79,3 @@ class MainActivity : ComponentActivity() {
 
     }
 }
-
-

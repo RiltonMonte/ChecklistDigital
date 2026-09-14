@@ -21,13 +21,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-
+/**
+ * Campo de entrada de texto reutilizável para telas de informação.
+ *
+ * @param modifier Permite aplicar modificadores de layout.
+ * @param infoInput Valor atual do campo de texto.
+ * @param onInfoInputChange Callback chamado quando o valor do campo muda.
+ * @param labelName Composable que define o rótulo do campo.
+ */
 @Composable
 fun InfoScreenField(
     modifier: Modifier = Modifier,
@@ -53,15 +58,26 @@ fun InfoScreenField(
     }
 }
 
+/**
+ * Conjunto de botões "Voltar" e "Próximo" para navegação entre telas.
+ *
+ * @param onBackClick Ação ao clicar em "Voltar".
+ * @param onNextClick Ação ao clicar em "Próximo".
+ * @param backButtonState Define se o botão "Voltar" está habilitado.
+ * @param nextButtonState Define se o botão "Próximo" está habilitado.
+ * @param text1 Texto exibido no botão "Voltar".
+ * @param text2 Texto exibido no botão "Próximo".
+ * @param modifier Permite aplicar modificadores de layout.
+ */
 @Composable
 fun InfoScreenButtons(
+    modifier: Modifier = Modifier,
     onBackClick: () -> Unit = {},
     onNextClick: () -> Unit = {},
     backButtonState: Boolean = true,
     nextButtonState: Boolean = true,
     text1: String,
     text2: String,
-    modifier: Modifier = Modifier
 ){
     Row(
         modifier = modifier.padding(8.dp).fillMaxWidth(),
@@ -84,6 +100,17 @@ fun InfoScreenButtons(
     }
 }
 
+/**
+ * Linha contendo dois switches (interruptores) para seleção de opções booleanas.
+ *
+ * @param info1 Texto descritivo do primeiro switch.
+ * @param infoChecked1 Estado atual do primeiro switch.
+ * @param onInfoChecked1Change Callback chamado ao alterar o estado do primeiro switch.
+ * @param info2 Texto descritivo do segundo switch.
+ * @param infoChecked2 Estado atual do segundo switch.
+ * @param onInfoChecked2Change Callback chamado ao alterar o estado do segundo switch.
+ * @param modifier Permite aplicar modificadores de layout.
+ */
 @Composable
 fun SwitchRow(
     modifier: Modifier = Modifier,
@@ -131,6 +158,15 @@ fun SwitchRow(
     }
 }
 
+/**
+ * Conjunto de botões de seleção (RadioButtons) para escolha de uma opção.
+ *
+ * @param radioOptions Lista de opções disponíveis.
+ * @param vehicleDetails2 Índice da opção atualmente selecionada.
+ * @param onClickChange Callback chamado ao selecionar uma nova opção (retorna índice).
+ * @param onOptionSelected Callback chamado ao selecionar uma nova opção (retorna texto).
+ * @param modifier Permite aplicar modificadores de layout.
+ */
 @Composable
 fun ButtonSelection(
     modifier: Modifier = Modifier,
@@ -169,10 +205,10 @@ fun ButtonSelection(
     }
 }
 
-
-
-
-
+/**
+ * Previews para facilitar a visualização dos componentes
+ * diretamente no Android Studio sem necessidade de execução.
+ */
 @Composable
 @Preview(
     showBackground = true,

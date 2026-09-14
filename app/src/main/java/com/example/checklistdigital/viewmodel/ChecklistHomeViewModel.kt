@@ -9,6 +9,17 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
+/**
+ * Representa um resumo de checklist para exibição na tela inicial.
+ *
+ * @param clientId ID do cliente associado ao checklist.
+ * @param insurance Nome da seguradora.
+ * @param serviceDate Data do serviço.
+ * @param vehicle Modelo do veículo.
+ * @param plate Placa do veículo.
+ * @param phone Telefone do cliente.
+ * @param createdAt Timestamp de criação (usado para ordenação).
+ */
 data class ChecklistSummary(
     val clientId: Int,
     val insurance: String,
@@ -19,6 +30,14 @@ data class ChecklistSummary(
     val createdAt: Long = System.currentTimeMillis()
 )
 
+/**
+ * Estado da UI da tela inicial de checklists.
+ *
+ * @param checklists Lista de checklists resumidos.
+ * @param isLoading Indica se os dados estão sendo carregados.
+ * @param error Mensagem de erro, se houver.
+ * @param selectedClientId ID do checklist selecionado (para ações como editar/deletar).
+ */
 data class ChecklistHomeUiState(
     val checklists: List<ChecklistSummary> = emptyList(),
     val isLoading: Boolean = false,
@@ -26,6 +45,10 @@ data class ChecklistHomeUiState(
     val selectedClientId: Int? = null  // Track selected checklist
 )
 
+/**
+ * ViewModel responsável por gerenciar a tela inicial de checklists.
+ * Carrega, seleciona, desseleciona e exclui checklists, mantendo o estado da UI.
+ */
 class ChecklistHomeViewModel(
     private val checklistRepository: ChecklistRepository
 ) : ViewModel() {
@@ -37,6 +60,11 @@ class ChecklistHomeViewModel(
         loadChecklists()
     }
 
+    /**
+     * Carrega todos os checklists do repositório e atualiza o estado da UI.
+     * - Ordena os checklists do mais recente para o mais antigo.
+     * - Ignora clientes sem informações de veículo.
+     */
     fun loadChecklists() {
         viewModelScope.launch {
             try {
@@ -49,7 +77,7 @@ class ChecklistHomeViewModel(
                         try {
                             var vehicleInfo: com.example.checklistdigital.data.VehicleInfo? = null
 
-                            // Get the first (and should be only) VehicleInfo for this client
+                            // Obtém informações de veículo vinculadas ao cliente
                             checklistRepository.getVehicleInfoByClientId(client.id).first().let {
                                 vehicleInfo = it
                             }
@@ -63,17 +91,17 @@ class ChecklistHomeViewModel(
                                         vehicle = vehicleInfo!!.vehicle,
                                         plate = vehicleInfo!!.plate,
                                         phone = client.phone,
-                                        createdAt = client.id.toLong() // Use clientId as proxy for creation time, sorted descending
+                                        createdAt = client.id.toLong() // Usa clientId como proxy de ordenação
                                     )
                                 )
                             }
                         } catch (e: Exception) {
-                            // Skip clients without vehicle info
+                            // Ignora clientes sem informações de veículo
                             continue
                         }
                     }
 
-                    // Sort checklists from latest (highest ID) to oldest (lowest ID)
+                    // Ordena checklists por ID decrescente (mais recentes primeiro)
                     val sortedSummaries = summaries.sortedByDescending { it.clientId }
 
                     _uiState.value = _uiState.value.copy(checklists = sortedSummaries, isLoading = false)
@@ -87,33 +115,39 @@ class ChecklistHomeViewModel(
         }
     }
 
+    /**
+     * Seleciona um checklist pelo ID do cliente.
+     */
     fun selectChecklist(clientId: Int) {
         _uiState.value = _uiState.value.copy(selectedClientId = clientId)
     }
 
+    /**
+     * Remove a seleção de checklist.
+     */
     fun deselectChecklist() {
         _uiState.value = _uiState.value.copy(selectedClientId = null)
     }
 
+    /**
+     * Exclui um checklist e seus dados relacionados.
+     * - Busca o cliente pelo ID.
+     * - Exclui o cliente (com deleção em cascata dos dados relacionados).
+     * - Atualiza a lista de checklists.
+     */
     fun deleteChecklist(clientId: Int) {
         viewModelScope.launch {
             try {
-                // Fetch the client to delete
                 val client = checklistRepository.getClient(clientId).first()
-
-                // Delete the client (cascade delete will handle related records)
                 checklistRepository.deleteClient(client)
 
-                // Deselect and reload the list
                 deselectChecklist()
                 loadChecklists()
             } catch (e: Exception) {
-                // Handle error - show error message
                 _uiState.value = _uiState.value.copy(
                     error = "Erro ao deletar checklist: ${e.message}",
                     selectedClientId = null
                 )
-                // Reload to ensure UI is consistent
                 loadChecklists()
             }
         }

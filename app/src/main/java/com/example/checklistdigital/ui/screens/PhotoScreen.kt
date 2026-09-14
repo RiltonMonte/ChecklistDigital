@@ -53,6 +53,16 @@ import java.util.Date
 import java.util.Locale
 import java.util.UUID
 
+/**
+ * Tela de gerenciamento de fotos vinculadas a um checklist/cliente.
+ * Permite capturar novas fotos com a câmera, solicitar permissão de uso,
+ * exibir fotos existentes e adicionar novas imagens ao banco de dados.
+ *
+ * @param modifier Permite aplicar modificadores de layout.
+ * @param clientId ID do cliente ao qual as fotos estão vinculadas.
+ * @param onBackClick Callback chamado ao voltar para a tela anterior.
+ * @param photoViewModel ViewModel responsável pelo gerenciamento das fotos.
+ */
 @Composable
 fun PhotoScreen(
     modifier: Modifier = Modifier,
@@ -67,14 +77,14 @@ fun PhotoScreen(
     val photoUris = photoViewModel.photoUris
     var showPermissionDialog by remember { mutableStateOf(false) }
 
-    // Load existing photos when screen opens
+    // Carrega fotos existentes ao abrir a tela
     LaunchedEffect(clientId) {
         if (clientId > 0) {
             photoViewModel.loadPhotos(clientId)
         }
     }
 
-    // Launcher for taking a photo
+    // Launcher para capturar foto com a câmera
     val takePictureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
@@ -85,12 +95,12 @@ fun PhotoScreen(
         }
     }
 
-    // Launcher for requesting camera permission
+    // Launcher para solicitar permissão de câmera
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            // Permission granted, open camera
+            // Permissão concedida → abrir câmera
             try {
                 val photoUri = createPhotoUri(context)
                 currentPhotoUri = photoUri
@@ -99,11 +109,12 @@ fun PhotoScreen(
                 e.printStackTrace()
             }
         } else {
-            // Permission denied, show dialog
+            // Permissão negada → mostrar diálogo
             showPermissionDialog = true
         }
     }
 
+    // Diálogo de permissão de câmera
     if (showPermissionDialog) {
         AlertDialog(
             onDismissRequest = { showPermissionDialog = false },
@@ -119,6 +130,7 @@ fun PhotoScreen(
         )
     }
 
+    // Layout principal
     Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -126,14 +138,14 @@ fun PhotoScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // Header
+            // Cabeçalho
             Text(
                 text = "Fotos do Cliente nº $clientId",
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
-            // Error message
+            // Mensagem de erro
             if (uiState.error != null) {
                 Card(
                     modifier = Modifier
@@ -149,7 +161,7 @@ fun PhotoScreen(
                 }
             }
 
-            // Loading indicator
+            // Indicador de carregamento
             if (uiState.isLoading) {
                 Box(
                     modifier = Modifier
@@ -160,7 +172,7 @@ fun PhotoScreen(
                     CircularProgressIndicator()
                 }
             } else {
-                // Combined photo display (existing + new)
+                // Combina fotos existentes com novas capturadas
                 val allPhotos = uiState.photos + photoUris.map {
                     Photo(
                         clientId = clientId,
@@ -168,6 +180,7 @@ fun PhotoScreen(
                     )
                 }
 
+                // Exibição das fotos capturadas ou já salvas
                 if (allPhotos.isNotEmpty()) {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
@@ -185,8 +198,10 @@ fun PhotoScreen(
                                 isNewPhoto = isNewPhoto,
                                 onDelete = {
                                     if (isNewPhoto) {
+                                        // Remove foto temporária (URI)
                                         photoViewModel.removePhotoUri(Uri.parse(photo.photoPath))
                                     } else {
+                                        // Remove foto já salva no banco
                                         coroutineScope.launch {
                                             photoViewModel.deletePhoto(photo)
                                         }
@@ -196,6 +211,7 @@ fun PhotoScreen(
                         }
                     }
                 } else {
+                    // Mensagem quando não há fotos
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -211,7 +227,7 @@ fun PhotoScreen(
                 }
             }
 
-            // Add Photo Button
+            // Botão para adicionar nova foto
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -225,7 +241,7 @@ fun PhotoScreen(
                 ) {
                     Button(
                         onClick = {
-                            // Request camera permission
+                            // Solicita permissão de câmera
                             permissionLauncher.launch(Manifest.permission.CAMERA)
                         },
                         modifier = Modifier.padding(horizontal = 8.dp)
@@ -241,7 +257,7 @@ fun PhotoScreen(
             }
 
 
-            // Action Buttons
+            // Botões de ação (Cancelar / Salvar)
             InfoScreenButtons(
                 text1 = "Cancelar",
                 onBackClick = {
@@ -253,7 +269,7 @@ fun PhotoScreen(
                 onNextClick = {
                     if (clientId > 0) {
                         coroutineScope.launch {
-                            // Save new photos from URIs
+                            // Salva novas fotos capturadas
                             val photoPaths = photoUris.mapIndexed { index, uri ->
                                 savePhotoToInternalStorage(context, uri, clientId, index)
                             }
@@ -272,6 +288,13 @@ fun PhotoScreen(
     }
 }
 
+/**
+ * Miniatura de foto exibida na grade.
+ *
+ * @param photo Foto a ser exibida.
+ * @param isNewPhoto Indica se a foto é nova (não salva ainda).
+ * @param onDelete Callback chamado ao excluir a foto.
+ */
 @Composable
 fun PhotoThumbnail(
     photo: Photo,
@@ -291,7 +314,7 @@ fun PhotoThumbnail(
         )
     }
 
-    // Delete button overlay
+    // Botão de exclusão
     IconButton(
         onClick = onDelete,
         modifier = Modifier
@@ -307,7 +330,7 @@ fun PhotoThumbnail(
         )
     }
 
-    // "New" indicator
+    // Indicador de foto nova
     if (isNewPhoto) {
         Card(
             modifier = Modifier
@@ -326,7 +349,7 @@ fun PhotoThumbnail(
 
 
 /**
- * Creates a temporary photo file and returns its URI
+ * Cria um arquivo temporário para foto e retorna seu URI.
  */
 fun createPhotoUri(context: Context): Uri {
     val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
@@ -346,8 +369,8 @@ fun createPhotoUri(context: Context): Uri {
 }
 
 /**
- * Saves photo from cache to internal storage with clientId in the path
- * Uses UUID to ensure unique filenames for multiple photos taken in quick succession
+ * Salva foto do cache para armazenamento interno, vinculada ao clientId.
+ * Usa UUID para garantir nomes únicos em fotos tiradas rapidamente.
  */
 fun savePhotoToInternalStorage(context: Context, photoUri: Uri, clientId: Int, index: Int = 0): String {
     val photoDir = File(context.filesDir, "photos/$clientId").apply {

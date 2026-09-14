@@ -30,6 +30,14 @@ import com.example.checklistdigital.ui.screens.ChecklistScreen
 import com.example.checklistdigital.ui.screens.PhotoScreen
 
 
+
+/**
+ * Função responsável por configurar e gerenciar a navegação principal do aplicativo.
+ * Define as rotas e telas disponíveis dentro do fluxo de checklist.
+ *
+ * @param modifier Permite aplicar modificadores de layout.
+ * @param navController Controlador de navegação usado para gerenciar as rotas.
+ */
 @Composable
 fun ChecklistNavGraph(
     modifier: Modifier = Modifier,
@@ -41,9 +49,10 @@ fun ChecklistNavGraph(
 
         NavHost(
             navController = navController,
-            startDestination = ChecklistMainScreen.Home.name,
+            startDestination = ChecklistMainScreen.Home.name, // Tela inicial definida como "Home"
             modifier = modifier
         ){
+            // Rota para a tela inicial (lista de checklists)
             composable(route = ChecklistMainScreen.Home.name){
                 ChecklistHomeScreen(
                     navigateToItemEntry = { navController.navigate(ChecklistMainScreen.Checklist.name) },
@@ -53,20 +62,18 @@ fun ChecklistNavGraph(
                         .padding(contentPadding)
                 )
             }
-
-            //Route for creating NEW checklist
+            // Rota para criação de um NOVO checklist
             composable(route = ChecklistMainScreen.Checklist.name) {
                 ChecklistScreen(
                     navController = navController,
-                    clientId = -1,
+                    clientId = -1, // -1 indica criação de novo checklist
                     onNextClick = { navController.navigate(ChecklistMainScreen.Home.name) },
                     onBackClick = { navController.navigate(ChecklistMainScreen.Home.name) },
                     modifier = Modifier
                         .padding(contentPadding)
                 )
             }
-
-            // Route for EDITING existing checklist
+            // Rota para EDIÇÃO de checklist existente
             composable(
                 route = "${ChecklistMainScreen.Checklist.name}/{clientId}",
                 arguments = listOf(navArgument("clientId") { type = NavType.IntType })
@@ -81,7 +88,7 @@ fun ChecklistNavGraph(
                         .padding(contentPadding)
                 )
             }
-
+            // Rota para tela de fotos vinculadas ao checklist
             composable(
                 route = "${ChecklistMainScreen.Photo.name}/{clientId}",
                 arguments = listOf(navArgument("clientId") { type = NavType.IntType })
@@ -99,6 +106,12 @@ fun ChecklistNavGraph(
     }
 }
 
+/**
+ * Barra superior personalizada do aplicativo.
+ * Exibe o logotipo e o nome do app centralizados.
+ *
+ * @param modifier Permite aplicar modificadores de layout.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChecklistTopAppBar(modifier: Modifier = Modifier){
@@ -112,7 +125,7 @@ fun ChecklistTopAppBar(modifier: Modifier = Modifier){
                         .size(64.dp)
                         .padding(8.dp),
                     painter = painterResource(R.drawable.logo_apg),
-                    contentDescription = null
+                    contentDescription = null // Imagem decorativa, sem descrição
                 )
                 Text(
                     text = stringResource(R.string.app_name),
@@ -125,12 +138,20 @@ fun ChecklistTopAppBar(modifier: Modifier = Modifier){
 
 }
 
+/**
+ * Enum que define as telas principais do fluxo de checklist.
+ * Utilizado para facilitar a navegação entre rotas.
+ */
 enum class ChecklistMainScreen() {
     Home,
     Checklist,
     Photo
 }
 
+/**
+ * Função de preview para visualização da navegação principal
+ * dentro do Android Studio sem necessidade de execução completa.
+ */
 @Composable
 @Preview
 fun ChecklistMainScreenPreview(){

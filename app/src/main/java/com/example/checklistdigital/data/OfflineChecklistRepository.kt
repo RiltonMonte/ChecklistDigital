@@ -2,8 +2,22 @@ package com.example.checklistdigital.data
 
 import kotlinx.coroutines.flow.Flow
 
+/**
+ * Implementação offline do repositório de checklist.
+ * Esta classe utiliza o [ChecklistDao] para realizar todas as operações
+ * de acesso ao banco de dados local (Room).
+ *
+ * O repositório segue o padrão Repository, isolando a lógica de acesso
+ * aos dados e fornecendo uma interface única para o restante da aplicação.
+ *
+ * @param checklistDao DAO responsável pelas operações no banco de dados.
+ */
 class OfflineChecklistRepository(private val checklistDao: ChecklistDao) : ChecklistRepository {
 
+
+    // -----------------------------
+    // Inserções
+    // -----------------------------
     override suspend fun insertClient(client: Client): Long = checklistDao.insertClient(client)
     override suspend fun insertVehicleInfo(vehicleInfo: VehicleInfo) = checklistDao.insertVehicleInfo(vehicleInfo)
     override suspend fun insertAddress(address: Address) = checklistDao.insertAddress(address)
@@ -11,12 +25,20 @@ class OfflineChecklistRepository(private val checklistDao: ChecklistDao) : Check
     override suspend fun insertVehicleStatus2(vehicleStatus2: VehicleStatus2) = checklistDao.insertVehicleStatus2(vehicleStatus2)
     override suspend fun insertPhoto(photo: Photo): Long = checklistDao.insertPhoto(photo)
 
+
+    // -----------------------------
+    // Atualizações
+    // -----------------------------
     override suspend fun updateClient(client: Client) = checklistDao.updateClient(client)
     override suspend fun updateVehicleInfo(vehicleInfo: VehicleInfo) = checklistDao.updateVehicleInfo(vehicleInfo)
     override suspend fun updateAddress(address: Address) = checklistDao.updateAddress(address)
     override suspend fun updateVehicleStatus1(vehicleStatus1: VehicleStatus1) = checklistDao.updateVehicleStatus1(vehicleStatus1)
     override suspend fun updateVehicleStatus2(vehicleStatus2: VehicleStatus2) = checklistDao.updateVehicleStatus2(vehicleStatus2)
 
+
+    // -----------------------------
+    // Exclusões
+    // -----------------------------
     override suspend fun deleteClient(client: Client) = checklistDao.deleteClient(client)
     override suspend fun deleteVehicleInfo(vehicleInfo: VehicleInfo) = checklistDao.deleteVehicleInfo(vehicleInfo)
     override suspend fun deleteAddress(address: Address) = checklistDao.deleteAddress(address)
@@ -24,6 +46,9 @@ class OfflineChecklistRepository(private val checklistDao: ChecklistDao) : Check
     override suspend fun deleteVehicleStatus2(vehicleStatus2: VehicleStatus2) = checklistDao.deleteVehicleStatus2(vehicleStatus2)
     override suspend fun deletePhoto(photo: Photo) = checklistDao.deletePhoto(photo)
 
+    // -----------------------------
+    // Consultas
+    // -----------------------------
     override fun getChecklist(): Flow<List<Client>> = checklistDao.getChecklist()
     override fun getClient(id: Int): Flow<Client> = checklistDao.getClient(id)
     override fun getVehicleInfoByClientId(clientId: Int): Flow<VehicleInfo> = checklistDao.getVehicleInfoByClientId(clientId)

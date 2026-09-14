@@ -26,8 +26,25 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+/**
+ * Utilitário responsável pela exportação de checklists em formato PDF.
+ * Usa a biblioteca iText para gerar documentos com informações do cliente,
+ * veículo, endereços, status e fotos.
+ */
 object PdfExportUtils {
 
+    /**
+     * Gera um arquivo PDF contendo todas as informações do checklist.
+     *
+     * @param context Contexto da aplicação, usado para acessar recursos e diretórios.
+     * @param client Dados do cliente.
+     * @param vehicleInfo Informações do veículo.
+     * @param address Endereço de origem e destino.
+     * @param vehicleStatus1 Status dos itens do veículo.
+     * @param vehicleStatus2 Status dos pneus e combustível.
+     * @param photos Lista de fotos vinculadas ao checklist.
+     * @return Caminho absoluto do arquivo PDF gerado.
+     */
     fun generateChecklistPdf(
         context: Context,
         client: Client,
@@ -44,11 +61,11 @@ object PdfExportUtils {
         val pdfDoc = PdfDocument(writer)
         val document = Document(pdfDoc)
 
-        // Logo + Título
+        // -----------------------------
+        // Cabeçalho: Logo + Informações da empresa
+        // -----------------------------
         val titleTable = Table(UnitValue.createPercentArray(floatArrayOf(1f, 4f)))
         titleTable.setWidth(UnitValue.createPercentValue(100f))
-
-        // Adiciona logo na primeira célula
 
         // Carrega logo do drawable
         val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.logo_apg)
@@ -58,12 +75,12 @@ object PdfExportUtils {
 
         val imageData: ImageData = ImageDataFactory.create(logoBytes)
         val logo = Image(imageData)
-        logo.setAutoScale(true) // ajusta automaticamente
-        logo.setHeight(40f)     // altura aproximada do texto
+        logo.setAutoScale(true)
+        logo.setHeight(40f)
         titleTable.addCell(logo.setTextAlignment(TextAlignment.LEFT))
 
 
-        // Adiciona título e informações da empresa na segunda célula
+        // Adiciona título e informações da empresa
         val titleCell = com.itextpdf.layout.element.Cell()
         titleCell.add(
             Paragraph("Arraial Porto Guincho")
@@ -101,7 +118,9 @@ object PdfExportUtils {
         document.add(titleTable)
         document.add(Paragraph(""))
 
-        // Client Information
+        // -----------------------------
+        // Informações do Cliente
+        // -----------------------------
         document.add(
             Paragraph("CLIENTE").setBold()
         )
@@ -116,7 +135,9 @@ object PdfExportUtils {
         document.add(clientTable)
         document.add(Paragraph(""))
 
-        // Vehicle Information
+        // -----------------------------
+        // Informações do Veículo
+        // -----------------------------
         document.add(
             Paragraph("VEÍCULO").setBold()
         )
@@ -130,8 +151,9 @@ object PdfExportUtils {
         document.add(vehicleTable)
         document.add(Paragraph(""))
 
-        // Address Information
-
+        // -----------------------------
+        // Endereço de Origem
+        // -----------------------------
         document.add(
             Paragraph("ORIGEM").setBold()
         )
@@ -143,6 +165,9 @@ object PdfExportUtils {
 
         document.add(Paragraph(""))
 
+        // -----------------------------
+        // Endereço de Destino
+        // -----------------------------
         document.add(
             Paragraph("DESTINO").setBold()
         )
@@ -154,7 +179,9 @@ object PdfExportUtils {
 
         document.add(Paragraph(""))
 
-        // Vehicle Status 1
+        // -----------------------------
+        // Status do Veículo (Itens)
+        // -----------------------------
         document.add(
             Paragraph("STATUS").setBold()
         )
@@ -176,8 +203,9 @@ object PdfExportUtils {
         document.add(status1Table)
         document.add(Paragraph(""))
 
-        // Vehicle Status 2
-
+        // -----------------------------
+        // Status do Veículo (Pneus e Combustível)
+        // -----------------------------
         val status2Table = Table(UnitValue.createPercentArray(floatArrayOf(2f, 1f, 2f, 1f)))
         status2Table.setWidth(UnitValue.createPercentValue(100f))
 
@@ -203,7 +231,9 @@ object PdfExportUtils {
         document.add(status2Table)
         document.add(Paragraph(""))
 
-        // Observations
+        // -----------------------------
+        // Observações
+        // -----------------------------
         if (vehicleStatus2.observacoes.isNotEmpty()) {
             document.add(
                 Paragraph("OBSERVAÇÕES")
@@ -214,7 +244,9 @@ object PdfExportUtils {
             document.add(Paragraph(""))
         }
 
-        // Photos
+        // -----------------------------
+        // Fotos
+        // -----------------------------
         if (photos.isNotEmpty()) {
             document.add(
                 Paragraph("FOTOS")
@@ -226,7 +258,7 @@ object PdfExportUtils {
                 try {
                     val photoFile = File(photo.photoPath)
                     if (photoFile.exists()) {
-                        // Load and rotate image based on EXIF orientation
+                        // Carrega e rotaciona imagem conforme EXIF
                         val rotatedBitmap = rotateImageIfNeeded(photo.photoPath)
 
                         val rotatedImageBytes = java.io.ByteArrayOutputStream().apply {
@@ -245,7 +277,9 @@ object PdfExportUtils {
             }
         }
 
-        // Footer
+        // -----------------------------
+        // Rodapé
+        // -----------------------------
         document.add(Paragraph(""))
         document.add(
             Paragraph("Gerado em: ${SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale("pt", "BR")).format(Date())}")
@@ -258,7 +292,7 @@ object PdfExportUtils {
     }
 
     /**
-     * Loads an image and rotates it based on EXIF orientation data
+     * Carrega uma imagem e rotaciona conforme dados EXIF.
      */
     private fun rotateImageIfNeeded(imagePath: String): android.graphics.Bitmap {
         val bitmap = BitmapFactory.decodeFile(imagePath)
@@ -298,11 +332,17 @@ object PdfExportUtils {
         }
     }
 
+    /**
+     * Adiciona uma célula simples (label + valor) à tabela.
+     */
     private fun addTableCell(table: Table, label: String, value: String) {
         table.addCell(Paragraph(label).setBold())
         table.addCell(Paragraph(value))
     }
 
+    /**
+     * Adiciona duas células (label + valor) em sequência à tabela.
+     */
     private fun addTableDoubleCell(table: Table, label1: String, value1: String, label2: String, value2: String) {
         table.addCell(Paragraph(label1).setBold())
         table.addCell(Paragraph(value1))
@@ -311,6 +351,9 @@ object PdfExportUtils {
         table.addCell(Paragraph(value2))
     }
 
+    /**
+     * Adiciona duas células de status (label + X se presente).
+     */
     private fun addStatusTableCell(table: Table, label1: String, status1: Boolean, label2: String, status2: Boolean) {
 
         table.addCell(Paragraph(label1).setBold())

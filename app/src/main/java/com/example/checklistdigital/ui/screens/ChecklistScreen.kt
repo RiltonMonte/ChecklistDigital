@@ -16,7 +16,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -40,7 +39,22 @@ import com.example.checklistdigital.viewmodel.VehicleStatus2ViewModel
 import com.example.checklistdigital.viewmodel.vehicleInfoUiState
 import kotlinx.coroutines.launch
 
-
+/**
+ * Tela principal de preenchimento do checklist.
+ * Exibe seções para dados do cliente, veículo, endereço e status do veículo,
+ * permitindo salvar ou cancelar o checklist.
+ *
+ * @param modifier Permite aplicar modificadores de layout.
+ * @param navController Controlador de navegação (usado para transições entre telas).
+ * @param clientId ID do cliente (se > 0, carrega dados existentes para edição).
+ * @param onNextClick Callback chamado ao salvar checklist com sucesso.
+ * @param onBackClick Callback chamado ao cancelar preenchimento.
+ * @param clientViewModel ViewModel responsável pelos dados do cliente.
+ * @param vehicleInfoViewModel ViewModel responsável pelas informações do veículo.
+ * @param addressViewModel ViewModel responsável pelo endereço.
+ * @param vehicleStatus1ViewModel ViewModel responsável pelo status de itens do veículo.
+ * @param vehicleStatus2ViewModel ViewModel responsável pelo status de pneus/combustível.
+ */
 @Composable
 fun ChecklistScreen(
     modifier: Modifier = Modifier,
@@ -56,6 +70,7 @@ fun ChecklistScreen(
 ){
     val coroutineScope = rememberCoroutineScope()
 
+    // Carrega dados existentes ou inicializa novos registros
     LaunchedEffect(clientId) {
         if (clientId > 0) {
             clientViewModel.loadClientForEdit(clientId)
@@ -72,36 +87,46 @@ fun ChecklistScreen(
         }
     }
 
+    // Layout principal em lista rolável
     LazyColumn(
         modifier = modifier
             .fillMaxWidth(),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 120.dp)
     ) {
         item {
+            // Seção Cliente
             ClientScreen(
                 uiState = clientViewModel.clientUiState,
                 onValueChange = clientViewModel::updateUiState,
                 modifier = Modifier
                     .padding(bottom = 16.dp)
             )
+
+            // Seção Veículo
             VeihicleScreen(
                 uiState = vehicleInfoViewModel.vehicleInfoUiState,
                 onValueChange = vehicleInfoViewModel::updateUiState,
                 modifier = Modifier
                     .padding(bottom = 16.dp)
             )
+
+            // Seção Endereço
             InfoFields(
                 uiState = addressViewModel.addressUiState,
                 onValueChange = addressViewModel::updateUiState,
                 modifier = Modifier
                     .padding(bottom = 16.dp)
             )
+
+            // Seção Status do Veículo (Itens)
             VehicleStatusScreen1(
                 uiState = vehicleStatus1ViewModel.vehicleStatus1UiState,
                 onValueChange = vehicleStatus1ViewModel::updateUiState,
                 modifier = Modifier
                     .padding(bottom = 16.dp)
             )
+
+            // Seção Status do Veículo (Pneus/Combustível)
             VehicleStatusScreen2(
                 uiState = vehicleStatus2ViewModel.vehicleStatus2UiState,
                 onValueChange = vehicleStatus2ViewModel::updateUiState,
@@ -109,6 +134,7 @@ fun ChecklistScreen(
                     .padding(bottom = 16.dp)
             )
 
+            // Botões de ação (Cancelar / Salvar)
             InfoScreenButtons(
                 text1 = "Cancelar",
                 onBackClick = onBackClick,
@@ -135,12 +161,19 @@ fun ChecklistScreen(
                     .padding(bottom = 32.dp, start = 28.dp, end = 28.dp)
             )
 
-            // Extra spacer to ensure keyboard doesn't cover content
+            // Espaço extra para evitar que o teclado cubra conteúdo
             Spacer(modifier = Modifier.height(80.dp))
         }
     }
 }
 
+/**
+ * Seção de preenchimento dos dados do cliente.
+ *
+ * @param uiState Estado atual dos dados do cliente.
+ * @param onValueChange Callback chamado ao alterar algum campo.
+ * @param modifier Permite aplicar modificadores de layout.
+ */
 @Composable
 fun ClientScreen(
     uiState: ClientUiState,
@@ -152,6 +185,8 @@ fun ClientScreen(
             text = "Cliente",
             modifier = Modifier.padding(8.dp)
         )
+
+        // Campo Data (formatado como dd/MM/yyyy)
         InfoScreenField(
             infoInput = uiState.clientDetails.serviceDate,
             onInfoInputChange = { input->
@@ -172,24 +207,32 @@ fun ClientScreen(
             labelName = { Text("Data") },
             modifier = Modifier
         )
+
+        // Campo Nome
         InfoScreenField(
             infoInput = uiState.clientDetails.clientName,
             onInfoInputChange = { onValueChange(uiState.clientDetails.copy(clientName = it)) },
             labelName = { Text("Nome") },
             modifier = Modifier
         )
+
+        // Campo Seguradora
         InfoScreenField(
             infoInput = uiState.clientDetails.insurance,
             onInfoInputChange = { onValueChange(uiState.clientDetails.copy(insurance = it)) },
             labelName = { Text("Seguradora") },
             modifier = Modifier
         )
+
+        // Campo Sinistro
         InfoScreenField(
             infoInput = uiState.clientDetails.accident,
             onInfoInputChange = { onValueChange(uiState.clientDetails.copy(accident = it)) },
             labelName = { Text("Sinistro") },
             modifier = Modifier
         )
+
+        // Campo Telefone (formatado como (XX)XXXXX-XXXX)
         InfoScreenField(
             infoInput = uiState.clientDetails.phone,
             onInfoInputChange = { input->
@@ -214,6 +257,13 @@ fun ClientScreen(
     }
 }
 
+/**
+ * Seção de preenchimento das informações do veículo.
+ *
+ * @param uiState Estado atual dos dados do veículo.
+ * @param onValueChange Callback chamado ao alterar algum campo.
+ * @param modifier Permite aplicar modificadores de layout.
+ */
 @Composable
 fun VeihicleScreen(
     uiState: vehicleInfoUiState,
@@ -225,24 +275,32 @@ fun VeihicleScreen(
             text = "Veiculo",
             modifier = Modifier.padding(8.dp)
         )
+
+        // Campo Modelo
         InfoScreenField(
             infoInput = uiState.vehicleInfoDetails.vehicle,
             onInfoInputChange = { onValueChange(uiState.vehicleInfoDetails.copy(vehicle = it)) },
             labelName = { Text("Modelo") },
             modifier = Modifier
         )
+
+        // Campo Placa
         InfoScreenField(
             infoInput = uiState.vehicleInfoDetails.plate,
             onInfoInputChange = { onValueChange(uiState.vehicleInfoDetails.copy(plate = it)) },
             labelName = { Text("Placa") },
             modifier = Modifier
         )
+
+        // Campo Cor
         InfoScreenField(
             infoInput = uiState.vehicleInfoDetails.color,
             onInfoInputChange = { onValueChange(uiState.vehicleInfoDetails.copy(color = it)) },
             labelName = { Text("Cor") },
             modifier = Modifier
         )
+
+        // Campo Ano
         InfoScreenField(
             infoInput = uiState.vehicleInfoDetails.year,
             onInfoInputChange = { onValueChange(uiState.vehicleInfoDetails.copy(year = it)) },
@@ -252,6 +310,13 @@ fun VeihicleScreen(
     }
 }
 
+/**
+ * Seção de preenchimento dos endereços de origem e destino.
+ *
+ * @param uiState Estado atual dos dados de endereço.
+ * @param onValueChange Callback chamado ao alterar algum campo.
+ * @param modifier Permite aplicar modificadores de layout.
+ */
 @Composable
 fun InfoFields(
     uiState: AddressUiState,
@@ -259,6 +324,7 @@ fun InfoFields(
     modifier: Modifier,
 ) {
     Column(modifier = modifier) {
+        // Endereço de origem
         Card(modifier = Modifier.padding(4.dp)) {
             Text(
                 text = "Endereço Origem",
@@ -289,6 +355,8 @@ fun InfoFields(
                 modifier = Modifier.padding(bottom = 8.dp)
             )
         }
+
+        // Endereço de destino
         Card(modifier = Modifier.padding(4.dp)) {
             Text(
                 text = "Endereço Destino",
@@ -324,11 +392,19 @@ fun InfoFields(
     }
 }
 
+/**
+ * Seção de preenchimento do status dos itens do veículo (parte 1).
+ * Exibe switches para marcar presença/ausência de acessórios e equipamentos.
+ *
+ * @param uiState Estado atual dos itens do veículo.
+ * @param onValueChange Callback chamado ao alterar algum campo.
+ * @param modifier Permite aplicar modificadores de layout.
+ */
 @Composable
 fun VehicleStatusScreen1(
+    modifier: Modifier = Modifier,
     uiState: VehicleStatus1UiState,
     onValueChange: (VehicleStatus1Details) -> Unit = {},
-    modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.padding(horizontal = 4.dp)) {
         SwitchRow(
@@ -406,6 +482,13 @@ fun VehicleStatusScreen1(
     }
 }
 
+/**
+ * Seção de preenchimento do status dos pneus, nível de combustível e observações.
+ *
+ * @param modifier Permite aplicar modificadores de layout.
+ * @param onValueChange Callback chamado ao alterar algum campo.
+ * @param uiState Estado atual dos dados de pneus, combustível e observações.
+ */
 @Composable
 fun VehicleStatusScreen2(
     modifier: Modifier = Modifier,
@@ -413,6 +496,9 @@ fun VehicleStatusScreen2(
     uiState: VehicleStatus2UiState,
 ) {
     Column(modifier = modifier) {
+        // -----------------------------
+        // Estado dos pneus dianteiros
+        // -----------------------------
         Row(modifier = Modifier.padding(top = 8.dp)) {
             Text(
                 text = "Pneus Dianteiros",
@@ -433,6 +519,10 @@ fun VehicleStatusScreen2(
                 )
             }
         }
+
+        // -----------------------------
+        // Estado dos pneus traseiros
+        // -----------------------------
         Row(modifier = Modifier.padding(top = 8.dp)) {
             Text(
                 text = "Pneus Traseiros",
@@ -452,8 +542,11 @@ fun VehicleStatusScreen2(
                     modifier = Modifier
                 )
             }
-
         }
+
+        // -----------------------------
+        // Estado do estepe
+        // -----------------------------
         Row(modifier = Modifier.padding(top = 8.dp)) {
             Text(
                 text = "Estepe",
@@ -474,7 +567,10 @@ fun VehicleStatusScreen2(
                 )
             }
         }
-        //marcador de nivel de combustivel
+
+        // -----------------------------
+        // Nível de combustível (slider)
+        // -----------------------------
         Column(
             modifier = Modifier
                 .padding(vertical = 24.dp, horizontal = 24.dp)
@@ -485,7 +581,10 @@ fun VehicleStatusScreen2(
                 onValueChange = { onValueChange(uiState.vehicleStatus2Details.copy(nivelCombustivel = it)) }
             )
         }
-        //campo de texto para Observações
+
+        // -----------------------------
+        // Observações adicionais
+        // -----------------------------
         Column(modifier = Modifier) {
             OutlinedTextField(
                 value = uiState.vehicleStatus2Details.observacoes,
@@ -502,6 +601,9 @@ fun VehicleStatusScreen2(
     }
 }
 
+/**
+ * Preview da tela ChecklistScreen com navegação simulada.
+ */
 @Composable
 @Preview(
     showBackground = true,
